@@ -1,0 +1,23 @@
+<!ENTITY name "COVID-19">
+
+<!ELEMENT Pyrexia   ( #PCDATA ) >
+ 
+<!ELEMENT Chill   ( #PCDATA ) >
+ 
+<!ELEMENT Headache   ( #PCDATA ) >
+ 
+<!ELEMENT Fatigue   ( #PCDATA ) >
+ 
+<!ELEMENT Pain   ( #PCDATA ) >
+ 
+<!ELEMENT Nausea   ( #PCDATA ) >
+ 
+<!ELEMENT Dizziness  ( #PCDATA ) >
+ 
+<!ELEMENT Pain_in_extremity  ( #PCDATA ) >
+ 
+<!ELEMENT Myalgia  ( #PCDATA ) >
+ 
+<!ELEMENT Injection_site_pain  ( #PCDATA ) >
+
+ 

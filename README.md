@@ -9,3 +9,4 @@ The folders are organized as follows:
 - `web`: the web interface for data analysis 
 - `checker`: for checking the data quality
 - `models`: for predictive modeling
+- `vax`: exploration of the vaccine data
