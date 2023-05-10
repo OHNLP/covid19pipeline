@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mapbox Test</title>
+<link href='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css' rel='stylesheet' />
+</head>
+<body>
+<div id='map' style='width: 900px; height: 800px;'></div>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js'></script>
+
+<script>
+mapboxgl.accessToken = 'pk.eyJ1IjoibWF5b2NsaW5pYyIsImEiOiJja2RraWdoeHYwcDlmMnFwZnNlazdzMzk4In0.IPCb-pUHuKePl80uZ28HzA';
+
+var fig_mapbox = {
+    map: null,
+
+    init: function() {
+        this.map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/light-v10', //hosted style id
+            center: [-96.165543, 45.046121], // starting position [lng, lat]
+            zoom: 3, // starting zoom,
+            // maxBounds: [ [-21.26, 14.11], 
+            //             [20.68, -12.07] ]
+        });
+
+        this.map.on('load', function() {
+            $.get(
+                '/static/data/map/us-MN.json',
+                {},
+                function(data) {
+                    fig_mapbox.add_state(data);
+                }, 'json'
+            );
+        })
+
+        
+    },
+
+    add_state: function(data) {
+        this.data = data;
+
+        this.map.addSource('MN_27073', {
+            'type': 'geojson',
+            'data': data['features'][0]
+        });
+
+        this.map.addLayer({
+            'id': 'MN_27073',
+            'type': 'fill',
+            'source': 'MN_27073',
+            'layout': {},
+            'paint': {
+                'fill-color': 'blue',
+                'fill-opacity': 0.8
+            }
+        });
+    }
+};
+
+fig_mapbox.init();
+
+</script>
+</body>
+</html>

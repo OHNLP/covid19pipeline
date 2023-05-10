@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+<!-- Required meta tags -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<link rel="icon" href="./static/img/favicon.ico">
+<title>COVID-19 World CrRW Status Trend</title>
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" crossorigin="anonymous">
+<script src="https://kit.fontawesome.com/cb45cc91b0.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.css" />
+<style>
+html, body {
+    overflow: hidden;
+    font-size: 12px;
+}
+p {
+    margin-bottom: .5rem;
+}
+.box-header-nav {
+    padding: 0 0 0 15px;
+}
+/* a start screen for IE and hiding init */
+#start-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+#ss-msg {
+    width: 100%;
+    padding: 10px 0;
+    text-align: center;
+}
+.wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.d3-tip {
+    line-height: 1;
+    padding: 6px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    border-radius: 4px;
+    font-size: 12px;
+}
+/* for the calendar chart */
+.fig-crrw-calendar {
+    width: 100%;
+    height: 95px;
+}
+.fig-crrw-calendar .crrw-day-label {
+    display: inline-block;
+    width: 80px;
+    margin: 0 5px 1px 0 ;
+    font-size: 10px;
+}
+.fig-crrw-calendar .crrw-day-chart {
+    width: calc(100% - 80px);
+    height: 95px;
+}
+/* for the 1-d calendar chart */
+.fig-crrw-1dcal {
+    height: 12px;
+    width: 100%;
+    padding: 0 0 0 5px;
+}
+.fig-crrw-1dcal:hover {
+    background: whitesmoke;
+}
+.fig-crrw-1dcal .crrw-day-label {
+    display: inline-block;
+    width: 80px;
+    height: 12px;
+    margin: 0 5px 1px 0 ;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 10px;
+    line-height: 12px;
+}
+.fig-crrw-1dcal .crrw-day {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin: 0 1px 1px 0 ;
+}
+/* for the trend chart */
+.fig-crrw-trend {
+    width: 100%;
+    height: 165px;
+    margin: 0 0 3px 0;
+    background: white;
+}
+.crrw-trend-info {
+    display: inline-block;
+    width: 80px;
+    padding: 0 0 0 5px;
+}
+.crrw-trend-bar {
+    display: block;
+    width: 100%;
+    padding: 2px 0;
+}
+.crrw-trend-label {
+    display: inline-block;
+    width: 100%;
+}
+.crrw-trend-label:hover {
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+    background: whitesmoke;
+}
+.crrw-trend-label:active {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+    background: whitesmoke;
+}
+.crrw-trend-chart {
+    width: 100%;
+    min-width: 600px;
+    height: 150px;
+}
+.crrw-day-R {
+    background: red;
+}
+.crrw-day-G {
+    background: green;
+}
+.crrw-day-Y {
+    background: gold;
+}
+.crrw-day-badge {
+    padding: 1px 5px;
+    border-radius: 5px;
+}
+#header {
+    background: whitesmoke;
+}
+#header a {
+    color: #555555;
+}
+.modal-dialog {
+    max-width: 700px !important;
+}
+.attr-color-legend {
+    display: inline-block;
+    width: 50px;
+    height: 16px;
+}
+.region-detail-box {
+    width: 100%;
+    max-height: 150px;
+    border-top: 1px dotted #eeeeee;
+    padding: 5px;
+}
+.region-detail-item {
+    display: inline-block;
+    margin: 0 10px 0 0;
+}
+.region-detail-name {
+    background: #ececec;
+    padding: 0 3px;
+    border-bottom: 1px solid #ececec;
+}
+.region-detail-value {
+    font-weight: bold;
+    margin-left: -3px;
+    padding: 0 3px;
+    border-bottom: 1px solid #ececec;
+}
+</style>
+</head>
+
+<body>
+
+    
+<div id="start-screen">
+    <h1>
+        <i class="fa fa-globe-americas"></i>
+        COVID-19 World CrRW Status Trend
+    </h1>
+    <div id="ss-msg">Loading data and initializing plots ...</div>
+</div>
+
+<div class="container-fluid wrapper">
+    <div id="header" class="row mb-3">
+        <div class="col">
+            <div class="mt-2 mb-2">
+                <i class="fa fa-globe-americas"></i> COVID-19 World CrRW Status Trend |
+                <a target="_blank" href="./"><i class="fa fa-home"></i> Home</a> |
+                <a href="javascript:void(0);" 
+                    onclick="jarvis.modal('About CrRW and how to use this website',$('#about-text').html());">
+                    <i class="fa fa-question-circle"></i>
+                    About
+                </a> |
+                <a href="https://github.com/OHNLP/covid19tracking" target="_blank">
+                    <i class="fa fa-github"></i>
+                    Source Code
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col d-flex flex-row">
+            <div id="fig_crrw_worldmap_vpp"  class="box" style="width: 100%;">
+                <h5>
+                    <i class="fa fa-globe-americas"></i>
+                    World Map of CrRW Status for <span id="fig_crrw_worldmap_last_update">&nbsp;</span>
+                </h5>
+                <div class="d-flex flex-row justify-content-start">
+                    <div class="btn-group">
+                        <button id="fig_crrw_worldmap_select_colorscale"
+                            class="btn btn-light btn-sm dropdown-toggle" 
+                            type="button" data-toggle="dropdown" aria-haspopup="true"
+                            aria-expanded="false">
+                            Color: {{ attr_colorscales[current.attr].name }}
+                        </button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" 
+                                href="javascript:void(0);"
+                                v-for="attr_colorscale, attr in attr_colorscales"
+                                v-on:click="update_color(attr)">
+                                <span class="attr-color-legend" 
+                                    v-bind:style="get_attr_colorscale_legend(attr_colorscale)">
+                                    &nbsp;
+                                </span>
+                                {{ attr_colorscale.name }}
+                                {{ get_attr_colorscale_value_legend(attr_colorscale) }}
+                            </a>
+                        </div>
+                    </div>
+            
+                    <div class="ml-3 pt-1" style="width: 200px">
+                        <span class="attr-color-legend-large d-flex justify-content-between" 
+                            v-bind:style="get_attr_colorscale_legend(attr_colorscales[current.attr])">
+                            <span class="text-sm ml-1">{{ get_attr_colorscale_min_value_legend(attr_colorscales[current.attr]) }}</span>
+                            <span class="text-sm mr-1 text-white">{{ get_attr_colorscale_max_value_legend(attr_colorscales[current.attr]) }}</span>
+                        </span>
+                    </div>
+            
+                </div>
+                
+                <div id="fig_crrw_worldmap" style="width: 100%; height: 100%;"></div>
+
+                <div class="region-detail-box" v-if="country.country == null"></div>
+                <div class="region-detail-box" v-else>
+                    <p>For {{ date }}, {{ country.data.name }}, (Population: {{ fmt_comma(country.data.pop) }}). </p>
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">Cr7d100k:</span>
+                        <span class="region-detail-value">{{ get_detail().crp }} cases per 100k capita</span>
+                    </div>
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">RW_Cr7d100k:</span>
+                        <span class="region-detail-value">{{ get_detail().crt }} </span>
+                    </div>
+
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">New cases:</span>
+                        <span class="region-detail-value">{{ fmt_comma(get_detail().dnc) }} </span>
+                    </div>
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">Total cases:</span>
+                        <span class="region-detail-value">{{ fmt_comma(get_detail().ncc) }} </span>
+                    </div>
+
+
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">Vaccination Administered:</span>
+                        <span class="region-detail-value">
+                            {{ fmt_ind_val('vaps', get_detail().vap) }}
+                            ({{ fmt_ind_val('vacs', get_detail().vac) }} doses)
+                            <a style="color:#777777;" target="_blank" href="https://ourworldindata.org/covid-vaccinations" title="The latest vaccination data come from the Our World in Data COVID vaccination data">
+                                <i class="far fa-question-circle"></i>
+                            </a>
+                        </span>
+                    </div>
+
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">Fully Vaccinated:</span>
+                        <span class="region-detail-value">
+                            {{ fmt_ind_val('fvps', get_detail().fvp) }}
+                            ({{ fmt_ind_val('fvcs', get_detail().fvc) }} people)
+                            <a style="color:#777777;" target="_blank" href="https://ourworldindata.org/covid-vaccinations" title="The latest vaccination data come from the Our World in Data COVID vaccination data">
+                                <i class="far fa-question-circle"></i>
+                            </a>
+                        </span>
+                    </div>
+                    
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">Case Doubling Time:</span>
+                        <span class="region-detail-value">{{ (get_detail().cdt).toFixed(1) }} days</span>
+                    </div>
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">Total death:</span>
+                        <span class="region-detail-value">{{ fmt_comma(get_detail().dth) }} </span>
+                    </div>
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">Death rate:</span>
+                        <span class="region-detail-value">{{ (get_detail().dtr*100).toFixed(2) }} %</span>
+                    </div>
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">Total Cases / Population:</span>
+                        <span class="region-detail-value">{{ (get_detail().tcp*100).toFixed(4) }} %</span>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>
+
+    <div id="toast" class="toast" style="position: absolute; top: 10px; right: 10px;">
+        <div class="toast-header">
+            <svg class="bd-placeholder-img rounded mr-2" width="15" height="15" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img"><rect id="toast_rect" width="100%" height="100%" fill="#007aff"></rect></svg>
+            <strong class="mr-auto">Bootstrap</strong>
+            <small>&nbsp;</small>
+            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div id="toast_body" class="toast-body">
+            &nbsp;
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="modal-title">Modal title</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div id="modal-body" class="modal-body">
+            
+            </div>
+        </div>
+        </div>
+    </div>
+
+    {% include '_about.html' %}
+
+    <!-- modal of trend lines -->
+    <div id="vw_modal_line" class="modal" tabindex="-1">
+        <div class="modal-dialog" style="max-width: 80% !important;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" style="margin-right: 10px;">
+                        <i class="fa fa-line-chart"></i>
+                        CrRW Status Trend
+                    </h5>
+                    <div class="form-inline">
+                        <button type="button" class="btn btn-light btn-sm mr-2 "
+                            onclick="jarvis.reset_fig_crrw_trends();">
+                            <i class="fa fa-undo"></i>
+                            Reset
+                        </button>
+                    </div>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="fig_crrw_trends" style="">
+    
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+var isIE = /*@cc_on!@*/false || !!document.documentMode;
+if (isIE) {
+    document.getElementById('ss-msg').innerHTML = 'The visualization used in this website require advanced web technologies, which are <b>NOT</b> supported by Internet Explorer.<br>Try using Google Chrome, Apple Safari, Mozilla Firefox or other modern browsers to access:<br><span style="font-size:1.2em;">' + location.href + '</span>';
+}
+</script>
+<!-- JavaScript packages -->
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@4.5.0/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
+
+<script>
+
+{% include 'js/crrw/fig_crrw_worldmap.js' %}
+{% include 'js/crrw/figmker_crrw_trend_ymax120.js' %}
+{% include 'js/crrw/pub_jarvis.js' %}
+
+var fig_crrw_usmap = {};
+
+// update some functions
+jarvis.init = function() {
+    // init the toast
+    $('.toast').toast({
+        delay: 10000
+    });
+
+    // bind the fips to states
+    for (var a in this.states) {
+        var fips = this.states[a].fips;
+        this.states[fips] = this.states[a];
+    }
+
+    // sortable
+    $('#fig_crrw_trends').sortable({
+        handle: '.crrw-trend-label',
+        placeholder: "ui-state-highlight"
+    });
+    $('#fig_crrw_trends').disableSelection();
+
+    fig_crrw_worldmap.init();
+
+    $.get(
+        this.base_data_url + 'WORLD-history.json',
+        { ver: Math.random() },
+        function(data) {
+            jarvis.world_data = data;
+            fig_crrw_worldmap.update(data);
+
+            jarvis.ssmsg('Finished initialization.')
+            setTimeout('jarvis.ssclose();', 500);
+        }, 'json'
+    );
+};
+
+jarvis.show_country = function(country) {
+    $('#vw_modal_line').modal('show');
+    this.show_country_trend(country);
+};
+
+// show more content than the default hover tip
+fig_crrw_worldmap._get_hover_text = function(obj, date, date_idx, attr, val) {
+    var cdt = obj.cdts[date_idx];
+    var dnc = obj.dncs[date_idx];
+    var ncc = obj.nccs[date_idx];
+    var crp = obj.crps[date_idx];
+    var crt = obj.crts[date_idx];
+    var dth = obj.dths[date_idx];
+    var dtr = obj.dtrs[date_idx];
+    var crc = obj.crcs[date_idx];
+    var tcp = ncc / obj.pop;
+    var fvc = obj.fvcs[date_idx];
+    var fvp = obj.fvps[date_idx];
+    var vac = obj.vacs[date_idx];
+    var vap = obj.vaps[date_idx];
+
+    var txt = date + ', ' + 
+        obj.name + '<br>' +
+        'Population: <b>' + this.fmt_comma(obj.pop) + '</b> <br>'+
+        'Cr7d100k: <b>' + crp.toFixed(1) + ' cases per 100k </b><br>' +
+        'RW_Cr7d100k: <b>' + crt.toFixed(2) + ' </b><br>' +
+        'Vaccinated Administered: <b>' + jarvis.ind2txt("vaps").fmt(vap) + ' (' + jarvis.ind2txt("vacs").fmt(vac) + ' doses) </b><br>' +
+        'Fully Vaccinated: <b>' + jarvis.ind2txt("fvps").fmt(fvp) + ' (' + jarvis.ind2txt("fvcs").fmt(fvc) + ' people) </b><br>' +
+        'Total Cases/Population: <b>' + (tcp*100).toFixed(4) + '% </b><br>' + 
+        'CDT: <b>' + cdt.toFixed(1) + ' days </b><br>' +
+        'New Cases: <b>' + this.fmt_comma(dnc) + '</b><br>' +
+        'Total Cases: <b>' + this.fmt_comma(ncc) + ' </b><br>' + 
+        'Total Death: <b>' + this.fmt_comma(dth) + ' </b><br>' + 
+        'Death Rate: <b>' + jarvis.ind2txt("dtrs").fmt(dtr) + '</b><br>' +
+    '';
+
+    return txt;
+};
+
+$(document).ready(function(){
+    jarvis.init();
+})
+</script>
+</body>
+</html>

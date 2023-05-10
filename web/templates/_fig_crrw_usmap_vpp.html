@@ -1,0 +1,137 @@
+<div id="fig_crrw_usmap_vpp" class="box">
+
+    <h5>
+        <i class="fa fa-globe-americas"></i>
+        U.S. Status for <span id="fig_crrw_usmap_last_update">&nbsp;</span>
+    </h5>
+    <div class="d-flex flex-row justify-content-start">
+        <div class="btn-group">
+            <button id="fig_crrw_usmap_select_colorscale"
+                class="btn btn-light btn-sm dropdown-toggle" 
+                type="button" data-toggle="dropdown" aria-haspopup="true"
+                aria-expanded="false">
+                Color: {{ attr_colorscales[current.attr].name }}
+            </button>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" 
+                    href="javascript:void(0);"
+                    v-for="attr_colorscale, attr in attr_colorscales"
+                    v-on:click="update_color(attr)">
+                    <span class="attr-color-legend" 
+                        v-bind:style="get_attr_colorscale_legend(attr_colorscale)">
+                        &nbsp;
+                    </span>
+                    {{ attr_colorscale.name }}
+                    {{ get_attr_colorscale_value_legend(attr_colorscale) }}
+                </a>
+            </div>
+        </div>
+
+        <div class="ml-3 pt-1">
+            <span class="attr-color-legend-large d-flex justify-content-between" 
+                v-bind:style="get_attr_colorscale_legend(attr_colorscales[current.attr])">
+                <span class="text-sm ml-1">{{ get_attr_colorscale_min_value_legend(attr_colorscales[current.attr]) }}</span>
+                <span class="text-sm mr-1 text-white">{{ get_attr_colorscale_max_value_legend(attr_colorscales[current.attr]) }}</span>
+            </span>
+        </div>
+
+    </div>
+
+    <div id="fig_crrw_usmap"></div>
+
+    <div class="region-detail-box" v-if="state.state == null"></div>
+    <div class="region-detail-box" v-else>
+        <p>For {{ date }}, {{ state.data.name }}, (Population: {{ fmt_comma(state.data.pop) }}). </p>
+        <div class="region-detail-item" >
+            <span class="region-detail-name">Cr7d100k:</span>
+            <span class="region-detail-value">{{ get_detail().crp }} per 100k</span>
+        </div>
+        <div class="region-detail-item" >
+            <span class="region-detail-name">RW_Cr7d100k:</span>
+            <span class="region-detail-value">{{ get_detail().crt }} </span>
+        </div>
+
+        <div class="region-detail-item" >
+            <span class="region-detail-name">New Cases:</span>
+            <span class="region-detail-value"
+                v-html="fmt_val('dncs', get_detail().dnc)">
+            </span>
+        </div>
+
+        <div class="region-detail-item" >
+            <span class="region-detail-name">Total Cases:</span>
+            <span class="region-detail-value">{{ fmt_comma(get_detail().ncc) }} </span>
+        </div>
+
+        <div class="region-detail-item" >
+            <span class="region-detail-name">Test Positive Rate:</span>
+            <span class="region-detail-value"
+                v-html="fmt_val('t7rs', get_detail().t7r)">
+            </span>
+
+            <span class="region-detail-value">
+                <a style="color:#777777;" 
+                    href="javascript:void(0);" 
+                    title="7-day smoothed test positive rate">
+                    <sup>7-day</sup>
+                </a>
+            </span>
+            | 
+            <span class="region-detail-value"
+                v-html="fmt_val('tprs', get_detail().tpr)">
+            </span>
+
+            <span class="region-detail-value">
+                <a style="color:#777777;" 
+                    href="javascript:void(0);" 
+                    title="Cumulative test positive rate">
+                    <sup>Cumu.</sup>
+                </a>
+            </span>
+        </div>
+
+        <div class="region-detail-item" >
+            <span class="region-detail-name">Vax Administered:</span>
+            <span class="region-detail-value">
+                {{ fmt_ind_val('vaps', get_detail().vap) }}
+                ({{ fmt_ind_val('vacs', get_detail().vac) }} doses)
+                <a style="color:#777777;" target="_blank" href="https://covidactnow.org/" title="The latest vaccination data come from the COVID Act Now data">
+                    <i class="far fa-question-circle"></i>
+                </a>
+            </span>
+        </div>
+
+        <div class="region-detail-item" >
+            <span class="region-detail-name">Fully Vaccinated:</span>
+            <span class="region-detail-value">
+                {{ fmt_ind_val('fvps', get_detail().fvp) }}
+                ({{ fmt_ind_val('fvcs', get_detail().fvc) }} people)
+                <a style="color:#777777;" target="_blank" href="https://covid.cdc.gov/covid-data-tracker/#vaccinations" title="The latest vaccination data come from CDC COVID Data Tracker">
+                    <i class="far fa-question-circle"></i>
+                </a>
+            </span>
+        </div>
+
+        <div class="region-detail-item" >
+            <span class="region-detail-name">Pandemic Vulnerability Index:</span>
+            <span class="region-detail-value">{{ get_detail().pvi.toFixed(2) }} (Median)</span>
+        </div>
+
+        <div class="region-detail-item" >
+            <span class="region-detail-name">Case Doubling Time:</span>
+            <span class="region-detail-value">{{ (get_detail().cdt).toFixed(1) }} days</span>
+        </div>
+        <div class="region-detail-item" >
+            <span class="region-detail-name">Total Death:</span>
+            <span class="region-detail-value">{{ fmt_comma(get_detail().dth) }} </span>
+        </div>
+        <div class="region-detail-item" >
+            <span class="region-detail-name">Death Rate:</span>
+            <span class="region-detail-value">{{ (get_detail().dtr*100).toFixed(2) }} %</span>
+        </div>
+        <div class="region-detail-item" >
+            <span class="region-detail-name">Total Cases / Population:</span>
+            <span class="region-detail-value">{{ (get_detail().tcp*100).toFixed(4) }} %</span>
+        </div>
+    </div>
+</div>

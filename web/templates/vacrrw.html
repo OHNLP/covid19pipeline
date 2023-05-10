@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+<!-- Required meta tags -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<link rel="icon" href="./static/img/favicon.ico">
+<title>COVID-19 CrRW Status Trend</title>
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" crossorigin="anonymous">
+<script src="https://kit.fontawesome.com/cb45cc91b0.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.css" />
+<style>
+html, body {
+    overflow: hidden;
+    font-size: 12px;
+}
+p {
+    margin-bottom: .5rem;
+}
+.box-header-nav {
+    padding: 0 0 0 15px;
+}
+/* a start screen for IE and hiding init */
+#start-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+#ss-msg {
+    width: 100%;
+    padding: 10px 0;
+    text-align: center;
+}
+.wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.d3-tip {
+    line-height: 1;
+    padding: 6px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    border-radius: 4px;
+    font-size: 12px;
+}
+/* for the calendar chart */
+.fig-crrw-calendar {
+    width: 100%;
+    height: 95px;
+}
+.fig-crrw-calendar .crrw-day-label {
+    display: inline-block;
+    width: 80px;
+    margin: 0 5px 1px 0 ;
+    font-size: 10px;
+}
+.fig-crrw-calendar .crrw-day-chart {
+    width: calc(100% - 80px);
+    height: 95px;
+}
+/* for the 1-d calendar chart */
+.fig-crrw-1dcal {
+    height: 12px;
+    width: 100%;
+    padding: 0 0 0 5px;
+}
+.fig-crrw-1dcal:hover {
+    background: whitesmoke;
+}
+.fig-crrw-1dcal .crrw-day-label {
+    display: inline-block;
+    width: 80px;
+    height: 12px;
+    margin: 0 5px 1px 0 ;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 10px;
+    line-height: 12px;
+}
+.fig-crrw-1dcal .crrw-day {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin: 0 1px 1px 0 ;
+}
+/* for the trend chart */
+.fig-crrw-trend {
+    width: 100%;
+    height: 165px;
+    margin: 0 0 3px 0;
+    background: white;
+}
+.crrw-trend-info {
+    display: inline-block;
+    width: 80px;
+    padding: 0 0 0 5px;
+}
+.crrw-trend-bar {
+    display: block;
+    width: 100%;
+    padding: 2px 0;
+}
+.crrw-trend-label {
+    display: inline-block;
+    width: 100%;
+}
+.crrw-trend-label:hover {
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+    background: whitesmoke;
+}
+.crrw-trend-label:active {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+    background: whitesmoke;
+}
+.crrw-trend-chart {
+    width: 100%;
+    min-width: 600px;
+    height: 150px;
+}
+.crrw-day-R {
+    background: red;
+}
+.crrw-day-G {
+    background: green;
+}
+.crrw-day-Y {
+    background: gold;
+}
+.crrw-day-badge {
+    padding: 1px 5px;
+    border-radius: 5px;
+}
+#header {
+    background: whitesmoke;
+}
+#header a {
+    color: #555555;
+}
+.modal-dialog {
+    max-width: 900px !important;
+}
+.attr-color-legend {
+    display: inline-block;
+    width: 50px;
+    height: 16px;
+}
+.region-detail-box {
+    width: 100%;
+    max-height: 150px;
+    border-top: 1px dotted #eeeeee;
+    padding: 5px;
+}
+.region-detail-item {
+    display: inline-block;
+    margin: 0 10px 0 0;
+}
+.region-detail-name {
+    background: #ececec;
+    padding: 0 3px;
+    border-bottom: 1px solid #ececec;
+}
+.region-detail-value {
+    font-weight: bold;
+    margin-left: -3px;
+    padding: 0 3px;
+    border-bottom: 1px solid #ececec;
+}
+</style>
+</head>
+
+<body>
+
+    
+<div id="start-screen">
+    <h1>
+        <i class="fa fa-globe-americas"></i>
+        COVID-19 CrRW Status Trend
+    </h1>
+    <div id="ss-msg">Loading data and initializing plots ...</div>
+</div>
+
+<div class="container-fluid wrapper">
+    <div id="header" class="row mb-3">
+        <div class="col">
+            <div class="mt-2 mb-2">
+                <i class="fa fa-globe-americas"></i> COVID-19 CrRW Status Trend |
+                {% include '_navi.html' %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col d-flex flex-row">
+            <div id="fig_crrw_usmap_vpp" class="box" style="width: 560px;">
+
+                <h5>
+                    <i class="fa fa-globe-americas"></i>
+                    U.S. Map of CrRW Status for <span id="fig_crrw_usmap_last_update">&nbsp;</span>
+                </h5>
+                <div>
+                    <div class="btn-group">
+                        <button id="fig_crrw_usmap_select_colorscale"
+                            class="btn btn-light btn-sm dropdown-toggle" 
+                            type="button" data-toggle="dropdown" aria-haspopup="true"
+                            aria-expanded="false">
+                            Color: {{ attr_colorscales[current.attr].name }}
+                        </button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" 
+                                href="javascript:void(0);"
+                                v-for="attr_colorscale, attr in attr_colorscales"
+                                v-on:click="update_color(attr)">
+                                <span class="attr-color-legend" 
+                                    v-bind:style="get_attr_colorscale_legend(attr_colorscale)">
+                                    &nbsp;
+                                </span>
+                                {{ attr_colorscale.name }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="fig_crrw_usmap" style="width: 560px; height: 330px;"></div>
+
+                <div class="region-detail-box" v-if="state.state == null"></div>
+                <div class="region-detail-box" v-else>
+                    <p>For {{ date }}, {{ state.data.name }}, (Population: {{ fmt_comma(state.data.pop) }}). </p>
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">Cr7d100k:</span>
+                        <span class="region-detail-value">{{ get_detail().crp }} cases per 100k capita</span>
+                    </div>
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">RW_Cr7d100k:</span>
+                        <span class="region-detail-value">{{ get_detail().crt }} </span>
+                    </div>
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">Pandemic Vulnerability Index:</span>
+                        <span class="region-detail-value">{{ get_detail().pvi.toFixed(2) }} (Median)</span>
+                    </div>
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">New cases:</span>
+                        <span class="region-detail-value">{{ fmt_comma(get_detail().dnc) }} </span>
+                    </div>
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">Total cases:</span>
+                        <span class="region-detail-value">{{ fmt_comma(get_detail().ncc) }} </span>
+                    </div>
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">Case Doubling Time:</span>
+                        <span class="region-detail-value">{{ (get_detail().cdt).toFixed(1) }} days</span>
+                    </div>
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">Total death:</span>
+                        <span class="region-detail-value">{{ fmt_comma(get_detail().dth) }} </span>
+                    </div>
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">Death rate:</span>
+                        <span class="region-detail-value">{{ (get_detail().dtr*100).toFixed(2) }} %</span>
+                    </div>
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">Total Cases / Population:</span>
+                        <span class="region-detail-value">{{ (get_detail().tcp*100).toFixed(4) }} %</span>
+                    </div>
+                </div>
+            </div>
+
+
+            <div id="fig_crrw_stmap_vpp" class="box" style="width: 530px;">
+                <h5>
+                    <i class="fa fa-map"></i>
+                    <span id="fig_crrw_stmap_state_name">&nbsp;</span>
+                    State Map of CrRW Status 
+                    for <span id="fig_crrw_stmap_last_update">&nbsp;</span>
+                </h5>
+                <div>
+                    <div class="btn-group">
+                        <button id="fig_crrw_stmap_select_colorscale"
+                            class="btn btn-light btn-sm dropdown-toggle" 
+                            type="button" data-toggle="dropdown" aria-haspopup="true"
+                            aria-expanded="false">
+                            Color: {{ attr_colorscales[current.attr].name }}
+                        </button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" 
+                                href="javascript:void(0);"
+                                v-for="attr_colorscale, attr in attr_colorscales"
+                                v-on:click="update_color(attr)">
+                                <span class="attr-color-legend" 
+                                    v-bind:style="get_attr_colorscale_legend(attr_colorscale)">
+                                    &nbsp;
+                                </span>
+                                {{ attr_colorscale.name }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div id="fig_crrw_stmap" style="width: 530px; height: 330px;"></div>
+                
+                <div class="region-detail-box" v-if="county.fips == null"></div>
+                <div class="region-detail-box" v-else>
+                    <p>For {{ date }}, {{ county.data.name }}, {{ county.data.state }} (FIPS: {{ get_detail().FIPS }}, Population: {{ fmt_comma(county.data.pop) }}). </p>
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">Cr7d100k:</span>
+                        <span class="region-detail-value">{{ get_detail().crp }} cases per 100k capita</span>
+                    </div>
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">RW_Cr7d100k:</span>
+                        <span class="region-detail-value">{{ get_detail().crt }} </span>
+                    </div>
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">Pandemic Vulnerability Index:</span>
+                        <span class="region-detail-value">{{ get_detail().pvi.toFixed(2) }} </span>
+                    </div>
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">New cases:</span>
+                        <span class="region-detail-value">{{ fmt_comma(get_detail().dnc) }} </span>
+                    </div>
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">Total cases:</span>
+                        <span class="region-detail-value">{{ fmt_comma(get_detail().ncc) }} </span>
+                    </div>
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">Case Doubling Time:</span>
+                        <span class="region-detail-value">{{ (get_detail().cdt).toFixed(1) }} days</span>
+                    </div>
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">Total death:</span>
+                        <span class="region-detail-value">{{ fmt_comma(get_detail().dth) }} </span>
+                    </div>
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">Death rate:</span>
+                        <span class="region-detail-value">{{ (get_detail().dtr*100).toFixed(2) }} %</span>
+                    </div>
+                    <div class="region-detail-item" >
+                        <span class="region-detail-name">Total Cases / Population:</span>
+                        <span class="region-detail-value">{{ (get_detail().tcp*100).toFixed(4) }} %</span>
+                    </div>
+                </div>
+                
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- <div class="row">
+        <div class="col">
+            <div class="box">
+                <h5>
+                    <i class="fa fa-calendar-alt"></i>
+                    CrRW Status Calendar
+                </h5>
+                <div id="fig_crrw_calendars" style="width: 100%;">
+
+                </div>
+            </div>
+        </div>
+    </div> -->
+
+    <div class="row">
+        <div class="col">
+            <div class="box">
+                <div class="box-header d-flex">
+                    <h5>
+                        <i class="fa fa-line-chart"></i>
+                        CrRW Status Trend
+                    </h5>
+                    <div class="box-header-nav d-flex">
+                        <div class="form-inline">
+                            <button type="button" class="btn btn-light btn-sm mr-2 "
+                                onclick="jarvis.reset_fig_crrw_trends();">
+                                <i class="fa fa-undo"></i>
+                                Reset
+                            </button>
+                        </div>
+
+                        <div class="form-inline">
+                            <input id="input_fips" type="text" 
+                                class="form-control mr-2 mr-sm-2" 
+                                placeholder="FIPS or State">
+                            <button type="button" class="btn btn-primary btn-sm"
+                                onclick="jarvis.add_trend();">
+                                <i class="fa fa-plus"></i>
+                                Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div id="fig_crrw_trends" style="width: 100%;">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast" style="position: absolute; top: 10px; right: 10px;">
+        <div class="toast-header">
+            <svg class="bd-placeholder-img rounded mr-2" width="15" height="15" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img"><rect id="toast_rect" width="100%" height="100%" fill="#007aff"></rect></svg>
+            <strong class="mr-auto">Bootstrap</strong>
+            <small>&nbsp;</small>
+            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div id="toast_body" class="toast-body">
+            &nbsp;
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="modal-title">Modal title</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div id="modal-body" class="modal-body">
+            
+            </div>
+        </div>
+        </div>
+    </div>
+
+    {% include '_about.html' %}
+</div>
+
+<script>
+var isIE = /*@cc_on!@*/false || !!document.documentMode;
+if (isIE) {
+    document.getElementById('ss-msg').innerHTML = 'The visualization used in this website require advanced web technologies, which are <b>NOT</b> supported by Internet Explorer.<br>Try using Google Chrome, Apple Safari, Mozilla Firefox or other modern browsers to access:<br><span style="font-size:1.2em;">' + location.href + '</span>';
+}
+</script>
+<!-- JavaScript packages -->
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@4.5.0/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
+
+<script>
+
+{% include 'js/crrw/fig_crrw_usmap.js' %}
+{% include 'js/crrw/fig_crrw_stmap.js' %}
+
+{% include 'js/crrw/figmker_crrw_calendar.js' %}
+{% include 'js/crrw/figmker_crrw_1dcal.js' %}
+{% include 'js/crrw/figmker_crrw_trend.js' %}
+
+var jarvis = {
+    plots: {},
+    data: {},
+    state_data: {},
+    base_data_url: '/covid_data/v2/',
+
+    txts: {
+        'txt-': ''
+    },
+
+    get_data_file_url: function (state) {
+        return this.base_data_url + state + '-history.json';
+        // return this.base_data_url + state + '-latest.json';
+    },
+
+    init: function() {
+        // init the toast
+        $('.toast').toast({
+            delay: 10000
+        });
+
+        // bind the fips to states
+        for (var a in this.states) {
+            var fips = this.states[a].fips;
+            this.states[fips] = this.states[a];
+        }
+
+        // bind enter
+        $('#input_fips').on('keypress', function(event) {
+            if (event.which == 13) {
+                jarvis.add_trend();
+            }
+        });
+
+        // sortable
+        $('#fig_crrw_trends').sortable({
+            handle: '.crrw-trend-label',
+            placeholder: "ui-state-highlight"
+        });
+        $('#fig_crrw_trends').disableSelection();
+
+        // init the components
+        fig_crrw_usmap.init()
+        fig_crrw_stmap.init();
+
+        $.get(
+            this.get_data_file_url('US'),
+            // { ver: Date().substring(0, 20).replace(/[\s:]/g, '_') },
+            { ver: Math.random() },
+            // { },
+            function(data) {
+                jarvis.data = data;
+                fig_crrw_usmap.update(data);
+
+                jarvis.show_state('MN');
+
+                jarvis.ssmsg('Finished initialization.')
+                setTimeout('jarvis.ssclose();', 500);
+            }, 'json'
+        );
+    },
+
+    show_state: function(state) {
+        this.show_state_map(state);
+        this.show_state_trend(state);
+    },
+
+    show_state_map: function(state) {
+        console.log('* show state map: ' + state);
+        if (this.state_data.hasOwnProperty(state)) {
+            fig_crrw_stmap.update(this.state_data[state]);
+            return;
+        }
+        $.get(
+            this.get_data_file_url(state),
+            { ver: Math.random() },
+            function(data) {
+                jarvis.state_data[data.state] = data;
+                fig_crrw_stmap.update(data);
+            }, 'json'
+        );
+    },
+
+    show_state_trend: function(state) {
+        console.log('* show state trend: ' + state);
+        var plot_id = 'fig_crrw_trend_' + state;
+        var fig = figmker_crrw_trend.make_fig(
+            plot_id, 
+            this.data, 
+            state
+        );
+        if (fig == null) {
+            return;
+        } else {
+            this.plots[plot_id] = fig;
+        }
+    },
+
+    show_county: function(fips) {
+        this.show_county_trend(fips);
+    },
+
+    show_county_trend: function(fips) {
+        console.log('* show county trend: ' + fips);
+        var state_fips = fips.substring(0, 2);
+        var state_abbr = this.states[state_fips].abbr;
+
+        if (this.state_data.hasOwnProperty(state_abbr)) {
+            this._show_county_trend(state_abbr, fips);
+        } else {
+            this.show_state_map(state_abbr);
+        }
+    },
+
+    _show_county_trend: function(state_abbr, fips) {
+        var plot_id = '';
+        var fig = null;
+
+        // plot_id = 'fig_crrw_calendar_' + fips;
+        // fig = figmker_crrw_calendar.make_fig(
+        //     plot_id, this.state_data, this.state_data.state, fips);
+        // this.plots[plot_id] = fig;
+
+        // plot_id = 'fig_crrw_calendar_' + fips;
+        // fig = figmker_crrw_1dcal.make_fig(
+        //     plot_id, this.state_data, this.state_data.state, fips);
+        // this.plots[plot_id] = fig;
+        
+        plot_id = 'fig_crrw_trend_' + fips;
+        fig = figmker_crrw_trend.make_fig(
+            plot_id, 
+            this.state_data[state_abbr], 
+            this.state_data[state_abbr].state, 
+            fips);
+        if (fig == null) {
+            return;
+        } else {
+            this.plots[plot_id] = fig;
+        }
+    },
+
+    add_trend: function() {
+        var fips = $('#input_fips').val();
+        fips = fips.trim();
+        fips = fips.toUpperCase();
+        if (fips.length < 2 || fips.length > 5) {
+            jarvis.msg('The input must be state abbr or FIPS code.', 'gold');
+            return;
+        }
+        if (this.states.hasOwnProperty(fips)) {
+            // ok, I guess it's a state abbr
+            var state = fips;
+            this.show_state_map(state);
+            this.show_state_trend(state);
+        } else {
+            if (fips.length == 4) {
+                fips = '0' + fips;
+            }
+            $('#input_fips').val(fips);
+            this.show_county_trend(fips);
+        }
+    },
+
+    remove_trend: function(plot_id) {
+        $('#' + plot_id).remove();
+    },
+
+    reset_fig_crrw_trends: function() {
+        $('#fig_crrw_trends').html('');
+    },
+
+    ssmsg: function(msg) {
+        $('#ss-msg').html(msg);
+    },
+
+    ssclose: function() {
+        $('#start-screen').hide();
+    },
+
+    states: {
+        AL: { fips: '01', abbr: 'AL', name: 'Alabama' }, 
+        AK: { fips: '02', abbr: 'AK', name: 'Alaska' }, 
+        AS: { fips: '60', abbr: 'AS', name: 'American Samoa' },
+        AZ: { fips: '04', abbr: 'AZ', name: 'Arizona' }, 
+        AR: { fips: '05', abbr: 'AR', name: 'Arkansas' }, 
+        CA: { fips: '06', abbr: 'CA', name: 'California' }, 
+        CO: { fips: '08', abbr: 'CO', name: 'Colorado' }, 
+        CT: { fips: '09', abbr: 'CT', name: 'Connecticut' }, 
+        DE: { fips: '08', abbr: 'DE', name: 'Delaware' }, 
+        FL: { fips: '12', abbr: 'FL', name: 'Florida' }, 
+        GA: { fips: '13', abbr: 'GA', name: 'Georgia' }, 
+        GU: { fips: '66', abbr: 'GU', name: 'Guam' },
+        HI: { fips: '15', abbr: 'HI', name: 'Hawaii' }, 
+        ID: { fips: '16', abbr: 'ID', name: 'Idaho' }, 
+        IL: { fips: '17', abbr: 'IL', name: 'Illinois' }, 
+        IN: { fips: '18', abbr: 'IN', name: 'Indiana' }, 
+        IA: { fips: '19', abbr: 'IA', name: 'Iowa' }, 
+        KS: { fips: '20', abbr: 'KS', name: 'Kansas' }, 
+        KY: { fips: '21', abbr: 'KY', name: 'Kentucky' }, 
+        LA: { fips: '22', abbr: 'LA', name: 'Louisiana' }, 
+        ME: { fips: '23', abbr: 'ME', name: 'Maine' }, 
+        MD: { fips: '24', abbr: 'MD', name: 'Maryland' }, 
+        MA: { fips: '25', abbr: 'MA', name: 'Massachusetts' }, 
+        MI: { fips: '26', abbr: 'MI', name: 'Michigan' }, 
+        MN: { fips: '27', abbr: 'MN', name: 'Minnesota' }, 
+        MS: { fips: '28', abbr: 'MS', name: 'Mississippi' }, 
+        MO: { fips: '29', abbr: 'MO', name: 'Missouri' }, 
+        MT: { fips: '39', abbr: 'MT', name: 'Montana' }, 
+        NE: { fips: '31', abbr: 'NE', name: 'Nebraska' }, 
+        NV: { fips: '32', abbr: 'NV', name: 'Nevada' }, 
+        NH: { fips: '33', abbr: 'NH', name: 'New Hampshire' }, 
+        NJ: { fips: '34', abbr: 'NJ', name: 'New Jersey' }, 
+        NM: { fips: '35', abbr: 'NM', name: 'New Mexico' }, 
+        NY: { fips: '36', abbr: 'NY', name: 'New York' }, 
+        NC: { fips: '37', abbr: 'NC', name: 'North Carolina' }, 
+        ND: { fips: '38', abbr: 'ND', name: 'North Dakota' }, 
+        MP: { fips: '69', abbr: 'MP', name: 'Northern Mariana Islands' }, 
+        OH: { fips: '39', abbr: 'OH', name: 'Ohio' }, 
+        OK: { fips: '40', abbr: 'OK', name: 'Oklahoma' }, 
+        OR: { fips: '41', abbr: 'OR', name: 'Oregon' }, 
+        PA: { fips: '42', abbr: 'PA', name: 'Pennsylvania' }, 
+        PR: { fips: '72', abbr: 'PR', name: 'Puerto Rico' }, 
+        RI: { fips: '44', abbr: 'RI', name: 'Rhode Island' }, 
+        SC: { fips: '45', abbr: 'SC', name: 'South Carolina' }, 
+        SD: { fips: '46', abbr: 'SD', name: 'South Dakota' }, 
+        TN: { fips: '47', abbr: 'TN', name: 'Tennessee' }, 
+        TX: { fips: '48', abbr: 'TX', name: 'Texas' }, 
+        VI: { fips: '78', abbr: 'VI', name: 'U.S. Virgin Islands' },
+        UT: { fips: '49', abbr: 'UT', name: 'Utah' }, 
+        VT: { fips: '50', abbr: 'VT', name: 'Vermont' }, 
+        VA: { fips: '51', abbr: 'VA', name: 'Virginia' }, 
+        WA: { fips: '53', abbr: 'WA', name: 'Washington' }, 
+        DC: { fips: '09', abbr: 'DC', name: 'Washington, D.C.' }, 
+        WV: { fips: '54', abbr: 'WV', name: 'West Virginia' }, 
+        WI: { fips: '55', abbr: 'WI', name: 'Wisconsin' }, 
+        WY: { fips: '56', abbr: 'WY', name: 'Wyoming' }
+    },
+
+    msg: function(s, color) {
+        if (typeof(color)=='undefined') {
+            color = 'blue';
+        }
+        $('#toast_rect').attr('fill', color);
+        $('#toast_body').html(s);
+        $('#toast').toast('show')
+    },
+
+    modal: function(ti, ct) {
+        $('#modal-title').html(ti);
+        $('#modal-body').html(ct);
+        $('#modal').modal('show');
+    }
+};
+
+$(document).ready(function(){
+    jarvis.init();
+})
+</script>
+</body>
+</html>

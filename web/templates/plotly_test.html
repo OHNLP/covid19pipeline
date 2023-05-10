@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="test" style="width: 80%; height: 500px; margin: 100px auto;">
+
+    </div>
+
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <script>
+
+        var data = [{
+            type: 'choropleth',
+            geojson: './static/data/us-countymap-5m.json',
+            locationmode: 'geojson-id',
+
+            locations: ['27109', '27101', '27103', '27105','27107','27111',],
+            z: [1, 0, 1, 2, 3, 4],
+
+            zmin: 0,
+            zmax: 4,
+
+            colorscale: [
+                [0,    '#ffffff'],
+                [0.25, '#ffe6ad'],
+                [0.5,  '#fed36a'],
+                [0.75, '#fe7333'],
+                [1,    '#e93356']
+            ], 
+            marker: {
+                line:{
+                    color: '#ffffff',
+                    width: 1
+                }
+            },
+
+            showlegend: false,
+            showscale: false
+        }];
+
+        var layout = {
+
+            margin: { t: 5, b: 5, l: 0, r: 0 },
+            geo: {
+                scope: 'usa',
+                showlakes: true,
+                lakecolor: 'rgb(255,255,255)',
+
+                center: {
+                    lat: 46.35253268348961,
+                    lon: -93.45076428583138
+                },
+                projection: {
+                    scale: 3.132416378572259
+                }
+            }
+        };
+
+        var config = {
+            responsive: true,
+            displayModeBar: false
+        };
+
+        Plotly.newPlot(
+            'test',
+            data,
+            layout,
+            config
+        );
+    </script>
+</body>
+
+</html>

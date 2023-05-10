@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+<!-- Required meta tags -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<link rel="icon" href="./static/img/favicon.ico">
+
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" crossorigin="anonymous">
+<script src="https://kit.fontawesome.com/cb45cc91b0.js" crossorigin="anonymous"></script>
+<style>
+
+/* a start screen for IE and hiding init */
+#start-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+#ss-msg {
+    width: 100%;
+    padding: 10px 0;
+    text-align: center;
+}
+.wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+</style>
+</head>
+
+<body>
+    
+<div id="start-screen">
+    <h1>
+        <i class="fa fa-globe-americas"></i>
+        COVID-19 CrRW Tracking
+    </h1>
+    <div id="ss-msg">Initializing plots ...</div>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col" style="padding-left:8px; padding-right:8px;">
+            <p>
+                <i class="fa fa-globe-americas"></i>
+                COVID-19 Tracking | MC HRR | 
+                
+                <span class="txt-mn">
+                    <i class="far fa-calendar-alt"></i>
+                    Last update time: <span id="pnl_last_update" class="last_update">mm/dd HH:MM</span>
+                </span>
+            </p>
+                        
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div id="fig_usmap_crrw"></div>
+        </div>
+    </div>
+</div>
+<script>
+var isIE = /*@cc_on!@*/false || !!document.documentMode;
+if (isIE) {
+    document.getElementById('ss-msg').innerHTML = 'The visualization used in this website require advanced web technologies, which are <b>NOT</b> supported by Internet Explorer.<br>Try using Google Chrome, Apple Safari, Mozilla Firefox or other modern browsers to access:<br><span style="font-size:1.2em;">' + location.href + '</span>';
+}
+</script>
+
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="./static/lib/d3/d3-tip.js"></script>
+<script src="./static/lib/echarts/echarts.js"></script>
+
+<script>
+
+{% include 'js/fig_usmap_crrw.js' %}
+var jarvis = {
+    base_url: '/covid_data/',
+    data: {
+        state: null,
+        county: null
+    },
+
+    init: function() {
+        $.get(
+            jarvis.base_url + 'state/US-latest.json',
+            { ver: Math.random() },
+            function(data) {
+                // load the basic data
+                jarvis.data.state = data;
+
+
+            }, 'json'
+        );
+        jarvis.ssmsg('Loaded all data!');
+        setTimeout('jarvis.ssclose();', 400);
+    },
+
+    load_county_data: function() {
+        $.ajax({
+            // show the progress!
+            xhr: function() {
+                var xhr = new window.XMLHttpRequest();
+                // Download progress
+                xhr.addEventListener("progress", function(evt){
+                    if (evt.lengthComputable) {
+                        var percentComplete = evt.loaded / evt.total * 100;
+                        // Do something with download progress
+                        // console.log(percentComplete);
+                        jarvis.ssmsg(`Loaded ${percentComplete.toFixed(2)} %`);
+                    }
+                }, false);
+
+                return xhr;
+            },
+            type: 'get',
+            url: "./covid_data/" + fig_ani_heatmap_uscnty.data_file,
+            data: {ver: Math.random()},
+            dataType: 'json',
+            success: function(data){
+                jarvis.data_vis = data;
+                fig_ani_heatmap_uscnty.init(jarvis.data_geo, jarvis.data_vis);
+                jarvis.ssmsg('Loaded all data!');
+                setTimeout('jarvis.ssclose();', 400);
+            }
+        });
+    },
+
+    ssmsg: function(msg) {
+        $('#ss-msg').html(msg);
+    },
+
+    ssclose: function() {
+        $('#start-screen').hide();
+    },
+}
+
+$(document).ready(function () {
+    jarvis.init();
+})
+</script>
+</body>
+
+</html>

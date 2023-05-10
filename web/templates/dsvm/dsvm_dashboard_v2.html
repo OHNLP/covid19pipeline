@@ -1,0 +1,1065 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+<!-- Required meta tags -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<link rel="icon" href="./static/img/favicon.ico">
+
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" crossorigin="anonymous">
+<script src="https://kit.fontawesome.com/cb45cc91b0.js" crossorigin="anonymous"></script>
+
+<style>
+html, body {
+    background-color: white;
+    overflow: hidden;
+}
+
+p {
+    margin-bottom: .5rem;
+}
+
+.wrapper {
+}
+
+/* fix for bootstrap template */
+.bg-dark {
+    background-color: #3d6b9c !important;
+}
+
+.tab-content {
+    border: 1px solid #dee2e6;
+    border-bottom: 0;
+    padding: 10px 3px;
+    background: white;
+}
+.nav-link {
+    padding: .2rem .8rem;
+}
+.nav-tabs {
+    border-top: 1px solid #dee2e6;
+    border-bottom: 0;
+    margin-bottom: 10px;
+}
+.nav-tabs .nav-link {
+    font-size: .85rem;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: .25rem;
+    border-bottom-right-radius: .25rem;
+}
+.nav-tabs .nav-item.show .nav-link,
+.nav-tabs .nav-link.active {
+    border-bottom: 3px solid #3d6b9c;
+    border-top: 0;
+    margin-top: -1px;
+}
+.tab-content {
+    padding: 0;
+}
+.card {
+    margin: 0 0 0.4rem 0;
+    border: 0 !important;
+}
+.tab-pane .card {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+.card-body {
+    padding: .5rem;
+}
+
+.card-title {
+    font-size: 1rem;
+    margin-bottom: .2rem;
+}
+
+.card-text {
+    font-size: .75rem;
+}
+.nav-tabs a {
+    color: #666666;
+}
+.btn-group-sm>.btn, .btn-sm {
+    padding: .15rem .8rem;
+}
+/****************************************
+* Styles for this page
+****************************************/
+.txt-lg {
+    font-size: 2rem !important;
+    line-height: 1.9rem;
+}
+.txt-md {
+    font-size: 1.5rem !important;
+    line-height: 1.45rem;
+}
+.txt-sm {
+    font-size: 1rem !important;
+    line-height: 0.95rem;
+}
+.txt-mn {
+    font-size: .75rem !important;
+    line-height: .71rem;
+}
+.txt-xm {
+    font-size: .55rem !important;
+    line-height: .5rem;
+}
+.txt-red {
+    color: red;
+}
+.txt-green {
+    color: green;
+}
+.txt-blue {
+    color: blue;
+}
+.txt-orange {
+    color: orange;
+}
+.txt-num-label {
+    margin-right: .5rem; 
+    text-align: center;
+}
+/****************************************
+* Styles for the us county map!!!
+****************************************/
+.counties {
+  fill: none;
+}
+.county {
+    stroke: #FFFFFF;
+    stroke-width: 1px;
+    opacity: .7;
+}
+.county:hover {
+    z-index: 999;
+    opacity: 1;
+}
+.states {
+  fill: none;
+  stroke: #fff;
+  stroke-linejoin: round;
+}
+.d3-tip {
+    line-height: 1;
+    padding: 6px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+/* a start screen for IE and hiding init */
+#start-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+#ss-msg {
+    width: 100%;
+    padding: 10px 0;
+    text-align: center;
+}
+.wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+@media screen and (max-width: 1600px){
+    .txt-lg {
+        font-size: 1.8rem !important;
+        line-height: 1.7rem;
+    }
+    .txt-md {
+        font-size: 1.1rem !important;
+        line-height: 1.05rem;
+    }
+    .txt-sm {
+        font-size: 0.9rem !important;
+        line-height: 0.9rem;
+    }
+    .txt-mn {
+        font-size: .7rem !important;
+        line-height: .68rem;
+    }
+    .txt-xm {
+        font-size: .5rem !important;
+        line-height: .5rem;
+    }
+    .btn-group-sm>.btn {
+        padding: .1rem .15rem;
+        font-size: .8rem;
+    }
+    .card-title {
+        font-size: .875rem;
+    }
+}
+
+@media screen and (min-width: 1200px) and (max-width: 1400px){
+    .txt-lg {
+        font-size: 1.4rem !important;
+        line-height: 1.3rem;
+    }
+    .txt-md {
+        font-size: 0.9rem !important;
+        line-height: 1.05rem;
+    }
+    .txt-sm {
+        font-size: 0.8rem !important;
+        line-height: 0.9rem;
+    }
+    .txt-mn {
+        font-size: .65rem !important;
+        line-height: .68rem;
+    }
+    .txt-xm {
+        font-size: .5rem !important;
+        line-height: .5rem;
+    }
+    .btn-group-sm>.btn {
+        padding: .1rem .15rem;
+        font-size: .8rem;
+    }
+    .card-title {
+        font-size: .85rem;
+    }
+}
+</style>
+<title>COVID-19 CDT Tracking</title>
+</head>
+
+<body>
+    
+<div id="start-screen">
+    <h1>
+        <i class="fa fa-globe-americas"></i>
+        COVID-19 Case Doubling Time Tracking
+    </h1>
+    <div id="ss-msg">Loading data and initializing plots ...</div>
+</div>
+
+<div class="container-fluid wrapper">
+
+    <div class="row">
+        <div class="col"  style="padding-left:8px; padding-right:8px;">
+            <div class="card" style="background: whitesmoke;">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fa fa-globe-americas"></i>
+                        COVID-19 Tracking | MC HRR | 
+                        <!-- <div class="btn-group btn-group-sm" role="group">
+                            <a href="./dsvm_cdtmap_county.html" class="btn btn-light">
+                                <i class="far fa-map"></i> Animated County-Level CDT Map
+                            </a>
+                        </div> |
+                        <div class="btn-group btn-group-sm" role="group">
+                            <a href="./dsvm_cdtmap_state.html" class="btn btn-light">
+                                <i class="far fa-map"></i> Animated State-Level CDT Map
+                            </a>
+                        </div> |
+                        <div class="btn-group btn-group-sm" role="group">
+                            <a href="./dsvm_cdtmap_world.html" class="btn btn-light">
+                                <i class="far fa-map"></i> Animated Globe-Level CDT Map
+                            </a>
+                        </div> | -->
+                        <span class="txt-mn">
+                            <i class="far fa-calendar-alt"></i>
+                            Last update time: <span id="pnl_last_update" class="last_update">mm/dd HH:MM</span>
+                        </span>
+                    </h5>
+                </div>
+            </div><!-- /.card -->
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4" style="padding-left:8px; padding-right:8px;">
+        
+            <div id="vue_mayocdts" class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fa fa-hourglass-half"></i>
+                        MC HRR Case Doubling Time | 
+                        <span class="txt-mn">
+                            <i class="far fa-calendar-alt"></i>
+                            {{ last_updated }}
+                        </span>
+                    </h5>
+                    <div class="d-flex align-items-center justify-content-start">
+                        <div class="txt-num-label">
+                            <div class="txt-mn"
+                                v-bind:class="'txt-' + get_color(values.AVG.delta)"
+                                v-html="get_sign(values.AVG.delta) + values.AVG.delta.toFixed(1)"></div>
+                            <div class="txt-lg">{{ values.AVG.val.toFixed(1) }}</div>
+                            <div class="txt-mn">AVG</div>
+                        </div>
+                        <div class="txt-num-label"
+                            v-for="reg in regions">
+                            <div class="txt-mn"
+                                v-bind:class="'txt-' + get_color(values[reg].delta)"
+                                v-html="get_sign(values[reg].delta) + values[reg].delta.toFixed(1)"></div>
+                            <div class="txt-md">{{ values[reg].val.toFixed(1) }}</div>
+                            <div class="txt-mn">{{ reg2disp(reg) }}</div>
+                        </div>
+                    </div>
+                    <div id="fig_trendline_cdt" style="width: 100%; min-width: 200px; height: 180px;">
+
+                    </div>
+                </div>
+            </div><!-- /.card -->
+
+            
+        </div><!-- /.col-lg-4 -->
+
+
+        <div class="col-lg-4" style="padding-left:8px; padding-right:8px;">
+            <div id="vue_mayonccs" class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fa fa-hospital-user"></i>
+                        MC HRR Total Cases | 
+                        <span class="txt-mn">
+                            <i class="far fa-calendar-alt"></i>
+                            {{ last_updated }}
+                        </span>
+                    </h5>
+                    <div class="d-flex align-items-center justify-content-start">
+                        <div class="txt-num-label">
+                            <div class="txt-mn"
+                                v-bind:class="'txt-' + get_color(values.TOTAL.delta)"
+                                v-html="get_sign(values.TOTAL.delta) + values.TOTAL.delta.toFixed(0)"></div>
+                            <div class="txt-lg">{{ values.TOTAL.val.toFixed(0) }}</div>
+                            <div class="txt-mn">TOTAL</div>
+                        </div>
+                        <div class="txt-num-label"
+                            v-for="reg in regions">
+                            <div class="txt-mn"
+                                v-bind:class="'txt-' + get_color(values[reg].delta)"
+                                v-html="get_sign(values[reg].delta) + values[reg].delta.toFixed(0)"></div>
+                            <div class="txt-md">{{ values[reg].val.toFixed(0) }}</div>
+                            <div class="txt-mn">{{ reg2disp(reg) }}</div>
+                        </div>
+                    </div>
+                    <div id="fig_trendarealine_cases" style="width: 100%; min-width: 200px; height: 180px;">
+
+                    </div>
+                </div>
+            </div><!-- /.card -->
+        </div><!-- /.col-lg-4 -->
+
+
+        <div class="col-lg-4" style="padding-left:8px; padding-right:8px;">
+            <div id="vue_mayomort" class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fa fa-user-slash"></i>
+                        MC HRR Cumulated Death Rate | 
+                        <span class="txt-mn">
+                            <i class="far fa-calendar-alt"></i>
+                            {{ last_updated }}
+                        </span>
+                    </h5>
+                    <div class="d-flex align-items-center justify-content-start">
+                        <div class="txt-num-label">
+                            <div class="txt-mn"
+                                v-bind:class="'txt-' + get_color(values.AVG.delta)"
+                                v-html="get_sign(values.AVG.delta) + (values.AVG.delta*100).toFixed(1) + '%'"></div>
+                            <div class="txt-lg">{{ (values.AVG.val*100).toFixed(1) }}<span class="txt-xm">%</span></div>
+                            <div class="txt-mn">AVG</div>
+                        </div>
+                        <div class="txt-num-label"
+                            v-for="reg in regions">
+                            <div class="txt-mn"
+                                v-bind:class="'txt-' + get_color(values[reg].delta)"
+                                v-html="get_sign(values[reg].delta) + (values[reg].delta*100).toFixed(1) + '%'"></div>
+                            <div class="txt-md">{{ (values[reg].val*100).toFixed(1) }}<span class="txt-xm">%</span></div>
+                            <div class="txt-mn">{{ reg2disp(reg) }}</div>
+                        </div>
+                    </div>
+                    <div id="fig_trendline_mortalityrate" style="width: 100%; min-width: 200px; height: 180px;">
+
+                    </div>
+                </div>
+            </div><!-- /.card -->
+        </div><!-- /.col-lg-4 -->
+
+    </div><!-- /.row -->
+
+    {% for r in regions %}
+    <div class="row">
+        <div class="col-lg-6 col-xl-4" style="padding-left:8px; padding-right:8px;">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fa fa-user"></i>
+                        [[ r[1] ]] HRR Case Doubling Time |  
+                        <span class="txt-mn">
+                            <i class="far fa-calendar-alt"></i>
+                            <span id="fig_cdtgeomap_[[ r[0] ]]_last_update">mm/dd</span>
+                        </span>
+                    </h5>
+                    <div id="fig_cdtgeomap_[[ r[0] ]]" style="width: 100%; min-width: 200px; min-height: 220px;">
+
+                    </div>
+                </div>
+            </div><!-- /.card -->
+
+        </div><!-- /.col-lg-6 .col-xl-4 -->
+
+
+        <div class="col-lg-6 col-xl-4" style="padding-left:8px; padding-right:8px;">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fa fa-chart-line"></i>
+                        [[ r[1] ]] HRR Cases Trend | 
+                        <span class="txt-mn">
+                            <i class="far fa-calendar-alt"></i>
+                            <span id="fig_caseline_[[ r[0] ]]_last_update">mm/dd</span>
+                        </span>
+                    </h5>
+                    <div id="fig_caseline_[[ r[0] ]]" style="width: 100%; min-width: 200px; height: 220px;">
+
+                    </div>
+                </div>
+            </div><!-- /.card -->
+        </div><!-- /.col-lg-6 .col-xl-4 -->
+
+
+        <div class="col-lg-6 col-xl-4" style="padding-left:8px; padding-right:8px;">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fa fa-chart-line"></i>
+                        [[ r[1] ]] Mayo Tests Trend | 
+                        <span class="txt-mn">
+                            <i class="far fa-calendar-alt"></i>
+                            <span id="fig_testline_[[ r[0] ]]_last_update">mm/dd</span>
+                        </span>
+                    </h5>
+                    <div id="fig_testline_[[ r[0] ]]" style="width: 100%; min-width: 200px; height: 220px;">
+
+                    </div>
+                </div>
+            </div><!-- /.card -->
+        </div><!-- /.col-lg-6 .col-xl-4 -->
+
+    </div><!-- /.row for [[ r[1] ]] -->
+    {% endfor %}
+    
+    <div class="row">
+        <div class="col-lg-8" style="padding-left:8px; padding-right:8px;">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fa fa-hourglass-half"></i>
+                        Case Doubling Time | U.S. Counties | 
+                        <span class="txt-mn">
+                            <i class="far fa-calendar-alt"></i>
+                            <span id="fig_heatgeomap_uscntycdt_last_update">mm/dd</span>
+                        </span>
+
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Sites">
+                            <button id="btn-toggle-us-mayo" type="button" class="btn btn-light"
+                                style="font-weight: bold;" onclick="fig_heatgeomap_uscntycdt.filter_by_cdt(0, 0)">
+                                <i class="fa fa-globe-americas"></i> All Counties
+                            </button>
+                        </div>
+
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Sites">
+                            <button type="button" class="btn btn-light"
+                                onclick="fig_heatgeomap_uscntycdt.filter_by_cdt(0, 3)">CDT&le;3</button>
+                            <button type="button" class="btn btn-light"
+                                onclick="fig_heatgeomap_uscntycdt.filter_by_cdt(0, 5)">CDT&le;5</button>
+                            <button type="button" class="btn btn-light"
+                                onclick="fig_heatgeomap_uscntycdt.filter_by_cdt(0, 7)">CDT&le;7</button>
+                            <button type="button" class="btn btn-light"
+                                onclick="fig_heatgeomap_uscntycdt.filter_by_cdt(0, 10)">CDT&le;10</button>
+                            <button type="button" class="btn btn-light"
+                                onclick="fig_heatgeomap_uscntycdt.filter_by_cdt(0, 14)">CDT&le;14</button>
+                            <button type="button" class="btn btn-light"
+                                onclick="fig_heatgeomap_uscntycdt.filter_by_cdt(14, 100)">CDT&gt;14</button>
+                            
+                        </div>
+                    </h5>
+                    <div id="fig_heatgeomap_uscntycdt" style="width: 100%; min-width: 470px; min-height: 300px; height: 500px;">
+
+                    </div>
+                </div>
+            </div><!-- /.card -->
+        </div>
+
+        <div class="col-lg-4" style="padding-left:8px; padding-right:8px;">
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fa fa-chart-line"></i>
+                        County Cases Trend | 
+                        <span class="txt-mn">
+                            <i class="far fa-calendar-alt"></i>
+                            <span id="fig_casedeathline_cntys_last_update">mm/dd</span>
+                        </span>
+
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Sites">
+                            <button id="btn-toggle-us-mayo" type="button" class="btn btn-light"
+                                onclick="fig_casedeathline_cntys.reset_series();fig_cdtline_cntys.reset_series();">
+                                RESET
+                            </button>
+                        </div>
+                    </h5>
+                    <div id="fig_casedeathline_cntys" style="width: 100%; min-width: 200px; height: 220px;">
+
+                    </div>
+                </div>
+            </div><!-- /.card -->
+
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fa fa-chart-line"></i>
+                        County Case Doubling Time Trend | 
+                        <span class="txt-mn">
+                            <i class="far fa-calendar-alt"></i>
+                            <span id="fig_cdtline_cntys_last_update">mm/dd</span>
+                        </span>
+
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Sites">
+                            <button id="btn-toggle-us-mayo" type="button" class="btn btn-light"
+                                onclick="fig_casedeathline_cntys.reset_series();fig_cdtline_cntys.reset_series();">
+                                RESET
+                            </button>
+                        </div>
+                    </h5>
+                    <div id="fig_cdtline_cntys" style="width: 100%; min-width: 200px; height: 220px;">
+
+                    </div>
+                </div>
+            </div><!-- /.card -->
+
+        </div>
+    </div><!-- /.row -->
+
+
+    <div class="row">
+
+        <div class="col-lg-8" style="padding-left:8px; padding-right:8px;">
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fa fa-hourglass-half"></i>
+                        Case Doubling Time | States | 
+                        <span class="txt-mn">
+                            <i class="far fa-calendar-alt"></i>
+                            <span id="fig_heatmap_usstatecdt_last_update">mm/dd</span>
+                        </span>
+                    </h5>
+                    <div id="fig_heatmap_usstatecdt" style="width: 100%; min-width: 470px; min-height: 300px; height: 500px;">
+                    </div>
+                </div>
+            </div><!-- /.card -->
+
+        </div>
+
+        <div class="col-lg-4" style="padding-left:8px; padding-right:8px;">
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fa fa-chart-line"></i>
+                        State Cases Trend | 
+                        <span class="txt-mn">
+                            <i class="far fa-calendar-alt"></i>
+                            <span id="fig_caseline_states_last_update">mm/dd</span>
+                        </span>
+
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Sites">
+                            <button id="btn-toggle-us-mayo" type="button" class="btn btn-light"
+                                onclick="fig_caseline_states.reset_series();fig_testline_states.reset_series();">
+                                RESET
+                            </button>
+                        </div>
+                    </h5>
+                    <div id="fig_caseline_states" style="width: 100%; min-width: 200px; height: 220px;">
+
+                    </div>
+                </div>
+            </div><!-- /.card -->
+
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fa fa-chart-line"></i>
+                        State Test Positive Rate Trend | 
+                        <span class="txt-mn">
+                            <i class="far fa-calendar-alt"></i>
+                            <span id="fig_testline_states_last_update">mm/dd</span>
+                        </span>
+
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Sites">
+                            <button id="btn-toggle-us-mayo" type="button" class="btn btn-light"
+                                onclick="fig_caseline_states.reset_series();fig_testline_states.reset_series();">
+                                RESET
+                            </button>
+                        </div>
+                    </h5>
+                    <div id="fig_testline_states" style="width: 100%; min-width: 200px; height: 220px;">
+
+                    </div>
+                </div>
+            </div><!-- /.card -->
+
+        </div>
+
+    </div><!-- /.row -->
+
+
+    <div class="row">
+
+        <div class="col-8" style="padding-left:8px; padding-right:8px;">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fa fa-hourglass-half"></i>
+                        Case Doubling Time | Worldwide | 
+                        <span class="txt-mn">
+                            <i class="far fa-calendar-alt"></i>
+                            <span id="fig_heatmap_worldcdt_last_update">mm/dd</span>
+                        </span>
+                    </h5>
+                    <div id="fig_heatmap_worldcdt" style="width: 100%; min-width: 470px; min-height: 300px; height: 500px;">
+
+                    </div>
+                </div>
+            </div><!-- /.card -->
+        </div>
+
+        <div class="col-lg-4" style="padding-left:8px; padding-right:8px;">
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fa fa-chart-line"></i>
+                        Country Cases Trend | 
+                        <span class="txt-mn">
+                            <i class="far fa-calendar-alt"></i>
+                            <span id="fig_caseline_nations_last_update">mm/dd</span>
+                        </span>
+
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Sites">
+                            <button id="btn-toggle-us-mayo" type="button" class="btn btn-light"
+                                onclick="fig_caseline_nations.reset_series();fig_deathline_nations.reset_series();">
+                                RESET
+                            </button>
+                        </div>
+                    </h5>
+                    <div id="fig_caseline_nations" style="width: 100%; min-width: 200px; height: 220px;">
+
+                    </div>
+                </div>
+            </div><!-- /.card -->
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fa fa-chart-line"></i>
+                        Country Mortality | 
+                        <span class="txt-mn">
+                            <i class="far fa-calendar-alt"></i>
+                            <span id="fig_deathline_nations_last_update">mm/dd</span>
+                        </span>
+
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Sites">
+                            <button id="btn-toggle-us-mayo" type="button" class="btn btn-light"
+                                onclick="fig_caseline_nations.reset_series();fig_deathline_nations.reset_series();">
+                                RESET
+                            </button>
+                        </div>
+                    </h5>
+                    <div id="fig_deathline_nations" style="width: 100%; min-width: 200px; height: 220px;">
+
+                    </div>
+                </div>
+            </div><!-- /.card -->
+
+        </div>
+
+    </div><!-- /.row -->
+
+</div><!-- /.wrapper -->
+
+<script>
+var isIE = /*@cc_on!@*/false || !!document.documentMode;
+if (isIE) {
+    document.getElementById('ss-msg').innerHTML = 'The visualization used in this website require advanced web technologies, which are <b>NOT</b> supported by Internet Explorer.<br>Try using Google Chrome, Apple Safari, Mozilla Firefox or other modern browsers to access:<br><span style="font-size:1.2em;">' + location.href + '</span>';
+}
+</script>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://unpkg.com/d3-simple-slider"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
+<script src="./static/lib/d3/d3-tip.js"></script>
+<script src="./static/lib/topojson/topojson.min.js"></script>
+<script src="./static/lib/echarts/echarts.js"></script>
+<script src="./static/lib/papaparse/papaparse-5.0.min.js"></script>
+
+<!-- include other plots -->
+<script>
+// the figure js
+var plots = {};
+
+{% include 'js/dsvm/vue_mayocdts.js' %}
+{% include 'js/dsvm/vue_mayonccs.js' %}
+{% include 'js/dsvm/vue_mayomort.js' %}
+
+{% include 'js/dsvm/fig_trendline_cdt.js' %}
+{% include 'js/dsvm/fig_trendline_mortalityrate.js' %}
+{% include 'js/dsvm/fig_trendarealine_cases.js' %}
+
+{% include 'js/dsvm/fig_heatgeomap_uscntycdt.js' %}
+{% include 'js/dsvm/fig_heatmap_usstatecdt.js' %}
+{% include 'js/dsvm/fig_heatmap_worldcdt.js' %}
+
+{% include 'js/dsvm/figmker_cdtgeomap_mayo6.js' %}
+{% include 'js/dsvm/figmker_caseline_mayo6.js' %}
+{% include 'js/dsvm/figmker_testline_mayo6.js' %}
+
+{% include 'js/dsvm/fig_casedeathline_cntys.js' %}
+
+{% include 'js/dsvm/fig_caseline_states.js' %}
+{% include 'js/dsvm/fig_caseline_nations.js' %}
+
+{% include 'js/dsvm/fig_cdtline_cntys.js' %}
+{% include 'js/dsvm/fig_testline_states.js' %}
+{% include 'js/dsvm/fig_deathline_nations.js' %}
+
+
+// the data options
+{% include 'js/dsvm/plots_options.js' %}
+
+
+var jarvis = {
+    page_columns: ['col-left', 'col-main', 'col-right'],
+    sp_item_settings: {
+        'RST': { color: 'blue' },
+        'RST/SEMN': { color: 'blue' },
+        'PHX': { color: 'red' },
+        'JAX': { color: 'green' },
+        'EC/MANK': { color: 'purple' },
+        'LA CROSSE': { color: 'brown' },
+        'ARIZONA': { color: 'red' },
+        'FLORIDA': { color: 'green' },
+        'NWWI': { color: 'teal' },
+        'SWMN': { color: 'grey' },
+        'SEMN': { color: 'brown' },
+        'SWWI': { color: 'purple' },
+        'CHINA': { color: 'tomato' },
+        'SOUTH KOREA': { color: 'mediumblue' }
+    },
+
+    mayo_sites: ['JAX', 'PHX', 'RST', 'SWMN', 'NWWI', 'SWWI'],
+    mayo_site_refs: {
+        'JAX': ['FL'],
+        'PHX': ['AZ'],
+        'RST': ['MN'],
+        'SWMN': ['MN'],
+        'NWWI': ['WI'],
+        'SWWI': ['WI']
+    },
+
+    name2color_map: d3.map(),
+
+    
+    ssmsg: function(msg) {
+        $('#ss-msg').html(msg);
+    },
+
+    ssclose: function() {
+        $('#start-screen').hide();
+    },
+
+    init: function() {
+        // draw the basic statistics
+        vue_mayocdts.load();
+        vue_mayonccs.load();
+        vue_mayomort.load();
+
+        // draw the line chart of cases of regions
+        $.get(
+            './covid_data/dsvm/' + 'mayo_regions_new_cum_cases.json',
+            { ver: Math.random() },
+            function(data) {
+                console.log('* loaded mayo_regions_new_cum_cases.json');
+                for (let i = 0; i < jarvis.mayo_sites.length; i++) {
+                    const mayo_site = jarvis.mayo_sites[i];
+                    var plot_id = 'fig_caseline_' + mayo_site.toLowerCase();
+                    var fig = figmker_caseline_mayo6.make_fig(mayo_site, plot_id, {
+                        'last_update': data.date,
+                        'dates': data.dates,
+                        'values': data.data[mayo_site]
+                    });
+                    plots[fig.plot_id] = fig;
+                }
+            }, 'json'
+        );
+
+        // draw the line chart of tests of regions
+        $.when(
+            $.get('./covid_data/dsvm/' + 'mayo_regions_tests.json', { ver: Math.random()}),
+            $.get('./covid_data/dsvm/' + 'usstate-data-dict-latest.json', { ver: Math.random() })
+        ).done(function(data1, data2) {
+            console.log('* loaded mayo 6 test data');
+            for (let i = 0; i < jarvis.mayo_sites.length; i++) {
+                var mayo_site = jarvis.mayo_sites[i];
+                var plot_id = 'fig_testline_' + mayo_site.toLowerCase();
+                // now get the refs
+                var tpr_refs = [];
+                for (let j = 0; j < jarvis.mayo_site_refs[mayo_site].length; j++) {
+                    var ref = jarvis.mayo_site_refs[mayo_site][j];
+                    var tpr_4dm = data1[0].dates.map((v)=> data2[0].data[ref][v].test_tpr_4dm);
+                    tpr_refs.push({
+                        name: ref,
+                        tpr_4dm: tpr_4dm
+                    });
+                }
+                var fig = figmker_testline_mayo6.make_fig(mayo_site, plot_id, data1[0], tpr_refs);
+                plots[fig.plot_id] = fig;
+            }
+        });
+
+        // draw the update date
+        $.get(
+            './covid_data/dsvm/' + 'last_update.json',
+            { ver: Math.random() },
+            function(data) {
+                console.log('* loaded last_update.json');
+                jarvis.set_last_update(data);
+            }, 'json'
+        );
+
+        // draw the county map and lines
+        $.when(
+            $.get('./static/data/us-countymap-5m.json', {}),
+            $.get('./covid_data/dsvm/' + 'uscounty-data-latest.json', { ver: Math.random() })
+        ).done(function(data1, data2) {
+            console.log('* loaded countymap and uscounty-data-latest.json');
+            // create the mayo6 CDT map
+            for (var i = 0; i < jarvis.mayo_sites.length; i++) {
+                var mayo_site = jarvis.mayo_sites[i];
+                var plot_id = 'fig_cdtgeomap_' + mayo_site.toLowerCase();
+                var fig = figmker_cdtgeomap_mayo6.make_fig({
+                    name: mayo_site,
+                    view: figmker_cdtgeomap_mayo6.area[mayo_site],
+                    fips_list: figmker_cdtgeomap_mayo6.fips_lists[mayo_site]
+                }, plot_id, data2[0]);
+                plots[fig.plot_id] = fig;
+            }
+
+            // show the cnty map
+            fig_heatgeomap_uscntycdt.set_all_counties(data1[0]);
+            fig_heatgeomap_uscntycdt.init(data2[0]);
+
+            fig_casedeathline_cntys.init(data2[0]);
+            // fig_casedeathline_cntys.reset_series();
+            fig_casedeathline_cntys.add_series_by_FIPS('04013'); // Maricopa,AZ
+            fig_casedeathline_cntys.add_series_by_FIPS('12031'); // Duval,FL
+            fig_casedeathline_cntys.add_series_by_FIPS('27109'); // Olmsted,MN
+
+            fig_cdtline_cntys.init(data2[0]);
+            // fig_cdtline_cntys.reset_series();
+            fig_cdtline_cntys.add_series_by_FIPS('04013'); // Maricopa,AZ
+            fig_cdtline_cntys.add_series_by_FIPS('12031'); // Duval,FL
+            fig_cdtline_cntys.add_series_by_FIPS('27109'); // Olmsted,MN
+        });
+        
+
+        // draw state map
+        fig_heatmap_usstatecdt.load();
+
+        // these two share same data
+        $.get(
+            './covid_data/dsvm/' + 'usstate-data-dict-latest.json',
+            { ver: Math.random() },
+            function(data) {
+                fig_caseline_states.init(data);
+                fig_testline_states.init(data);
+                
+                fig_caseline_states.add_series_by_state('AZ');
+                fig_caseline_states.add_series_by_state('FL');
+                fig_caseline_states.add_series_by_state('MN');
+
+                fig_testline_states.add_series_by_state('AZ');
+                fig_testline_states.add_series_by_state('FL');
+                fig_testline_states.add_series_by_state('MN');
+            }, 'json'
+        );
+
+        // draw world map
+        $.get(
+            './covid_data/dsvm/' + 'world-data-latest.json',
+            {ver: Math.random()},
+            function(data) {
+                fig_heatmap_worldcdt.init(data);
+                fig_caseline_nations.init(data);
+                fig_deathline_nations.init(data);
+
+                fig_caseline_nations.add_series_by_nation('US');
+                fig_deathline_nations.add_series_by_nation('US');
+            }
+        )
+
+        // add resize
+        $(window).on('resize', function(){
+            for (const plot_id in plots) {
+                if (plots.hasOwnProperty(plot_id)) {
+                    const fig = plots[plot_id];
+                    if (fig.hasOwnProperty('resize')) {
+                        fig.resize();
+                    }
+                }
+            }
+        });
+
+        jarvis.ssmsg('Dashboard is initialized.')
+        setTimeout('jarvis.ssclose();', 500);
+    },
+
+    view_region: function(region) {
+        fig_heatmap_ustpt.re_plot(region);
+        figmker_caseline_mayo6.make_fig(
+            region, 'fig_caseline', {
+                'last_update': dt5[0].date,
+                'dates': dt5[0].dates,
+                'values': dt5[0].data.JAX
+        });
+    },
+
+    get_color_by_name: function (name) {
+        var name_upper = name.toUpperCase();
+        if (this.sp_item_settings.hasOwnProperty(name_upper)) {
+            return this.sp_item_settings[name_upper].color;
+        } else {
+            if (this.name2color_map.has(name_upper)) {
+                return this.name2color_map.get(name_upper);
+            } else {
+                var idx = this.name2color_map.keys().length % 10;
+                var color = d3.schemeCategory10[idx];
+                this.name2color_map.set(name_upper, color);
+                return color;
+            }
+        }
+    },
+
+    guess_width: function(elem_id) {
+        for (let i = 0; i < this.page_columns.length; i++) {
+            const col_id = this.page_columns[i];
+            if (document.getElementById(col_id).contains(document.getElementById(elem_id))) {
+                var w = document.getElementById(col_id).getBoundingClientRect().width;
+                console.log('* JARVIS: I guess the width of ' + elem_id + ' is ' + w);
+                return w;
+            }
+        }
+
+        return 0;
+    },
+
+    calc_color_by_name: function (name, alpha) {
+        var name_upper = name.toUpperCase();
+        if (typeof (alpha) == 'undefined') { alpha = 1; }
+        var r = (name_upper.charCodeAt(0) - 64) / 26 * 255;
+        var g = name_upper.charCodeAt(1) / 26 * 255;
+        var b = 0;
+        if (name_upper.length > 2) {
+            for (var i = 2; i < name_upper.length; i++) {
+                b += name_upper.charCodeAt(i);
+            }
+            b = b / (name_upper.length - 2);
+        }
+        return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+    },
+
+    set_last_update: function(data) {
+        $('.last_update').html(data.last_update);
+        $('.last_update_date').html(data.last_update.split(' ')[0]);
+    },
+
+    /*
+     * Where using this function, make sure fig_heatgeomap_uscntycdt is loaded.
+     */
+     add_county_series: function(FIPS) {
+        console.log('* add county ' + FIPS);
+        // get basic info
+        var data = fig_heatgeomap_uscntycdt.data_dict.get(FIPS);
+        if (data == null) {
+            // which means this FIPS didn't have case
+            return -1;
+        }
+        if (data.nccs[data.nccs.length-1] == 0) {
+            // means this county has no case
+            return -1;
+        }
+        // prepare data ?
+
+        // update chart
+        fig_casedeathline_cntys.add_series_by_FIPS(FIPS);
+        fig_cdtline_cntys.add_series_by_FIPS(FIPS);
+
+    },
+
+    add_state_series: function(state) {
+        console.log('* add state ' + state);
+        fig_caseline_states.add_series_by_state(state);
+        fig_testline_states.add_series_by_state(state);
+    },
+
+    add_nation_series: function(nation) {
+        console.log('* add nation ' + nation);
+        fig_caseline_nations.add_series_by_nation(nation);
+        fig_deathline_nations.add_series_by_nation(nation);
+    },
+
+    google_search: function(keywords) {
+        var url = 'https://www.google.com/search?q=' + keywords.join('+');
+        window.open(url);
+    }
+};
+
+
+$(document).ready(function () {
+    jarvis.init();
+})
+</script>
+</body>
+
+</html>

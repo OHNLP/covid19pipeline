@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<link rel="icon" href="./static/img/favicon.ico">
+<title>Data Pipeline | COVID-19 Map</title>
+<script src="https://kit.fontawesome.com/cb45cc91b0.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
+<style>
+.text-sm {
+    font-size: .8em;
+}
+.hide {
+    display: none;
+}
+.ui-menu { 
+    width: 190px; 
+}
+.badge {
+    margin: 0 2px;
+    padding: 2px 5px;
+    font-size: 10px;
+    border-radius: 3px;
+}
+.badge-default {
+    color: black;
+    background-color: whitesmoke;
+}
+.wrapper {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+.fig-stmap-box {
+    width: 300px;
+    height: 330px;
+    float: left;
+    margin: 4px;
+    padding: 4px;
+    border: 1px solid #eeeeee;
+}
+.fig-stmap-box p {
+    margin: 0 0 3px 0;
+}
+.fig-stmap {
+    width: 300px;
+    height: 300px;
+}
+.case-flag {
+    padding: 1px 5px;
+    font-size: .9em;
+}
+.case-flag-s {
+    margin: 0 1px 0 0;
+    padding: 1px 2px;
+    font-size: 10px;
+    font-family: 'Courier New', Courier, monospace;
+}
+.case-flag-0 {
+    color: white;
+    background-color: blue;
+}
+.case-flag-1 {
+    color: white;
+    background-color: gray;
+}
+.table th, .table td {
+    border-bottom: 1px dotted #cccccc;
+}
+.table tr:hover td {
+    background: whitesmoke;
+}
+#navi {
+    width: 200px;
+    height: 100%;
+    padding: 5px;
+    margin-right: 5px;
+    position: fixed;
+    z-index: 10;
+}
+#checkers {
+    position: fixed;
+    left: 210px;
+    width: calc(100% - 210px);
+    height: 100%;
+    overflow-y: auto;
+    z-index: 1;
+}
+#checker_state_flags {
+    width: 100%;
+    max-width: calc(100% - 110px);
+}
+#checker_state_json {
+    position: fixed;
+    right: 25px;
+    top: 20px;
+    width: 880px;
+    max-height: 600px;
+    overflow-y: auto;
+    background-color: white;
+    padding: 5px;
+    box-shadow: 5px 5px 5px 0 #cccccc;
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+    <div id="navi">
+        <h4>Data Checker</h4>
+        <p> 
+            Data File Version: 
+            <select v-model="calc">
+                <option disabled value="">Please select one</option>
+                <option value="v2">v2</option>
+                <option value="v3">v3 (with prediction)</option>
+            </select>
+        </p>
+        <!-- <p>
+            Date:
+            <input id="datepicker" v-model="date">
+        </p> -->
+        <ul id="menu">
+            <!-- <li><div>
+                <i class="fa fa-search"></i>
+                Detector
+                </div>
+                <ul>
+                <li class="ui-widget-header"><div>Check Updates</div></li>
+                <li><div>- USAFacts</div></li>
+                <li><div>- COVID Tracking</div></li>
+                <li><div>- HSRC</div></li>
+                </ul>
+            </li>
+            <li class="ui-widget-header"><div>Download Raw Data</div></li>
+            <li><div onclick="jarvis.download_raw_data('usafacts');">USAFacts</div></li>
+            <li><div onclick="jarvis.download_raw_data('covidtracking');">COVID Tracking</div></li>
+            <li><div onclick="jarvis.download_raw_data('hsrc');">HSRC</div></li>
+
+            <li class="ui-widget-header"><div>Parse Raw Data</div></li>
+            <li><div>
+                Version 2 (No Pred.)
+                </div>
+                <ul>
+                <li class="ui-widget-header"><div>Parse Data</div></li>
+                <li><div>- County Level</div></li>
+                <li><div>- State Level</div></li>
+                <li><div>- USA Level</div></li>
+                </ul>
+            </li>
+            <li><div>
+                Version 3 (w/ Pred.)
+                </div>
+                <ul>
+                <li class="ui-widget-header"><div>Parse Data with Pred.</div></li>
+                <li><div>- County Level</div></li>
+                <li><div>- State Level</div></li>
+                <li><div>- USA Level</div></li>
+                </ul>
+            </li>
+
+            <li class="ui-widget-header"><div>Merge Parsed Data</div></li>
+            <li><div>State Level JSONs</div></li>
+            <li><div>USA Level JSON</div></li> -->
+
+            <li class="ui-widget-header"><div>Check Final JSON</div></li>
+            <li><div onclick="checker_usa_json.load();">Load US-latest.json</div></li>
+            <li><div onclick="jarvis.load_all_states();">Load all states</div></li>
+
+            <!-- <li class="ui-widget-header"><div>Upload to Azure</div></li>
+            <li>
+                <div onclick="jarvis.upload_azure();">
+                <i class="fa fa-cloud-upload-alt"></i>
+                Upload!
+                </div>
+            </li> -->
+        </ul>
+    </div>
+
+    <div id="checkers">
+
+        <div id="checker_usa_json">
+            <fieldset v-if="date_idx != null">
+                <legend>USA and States Data</legend>
+                <p>
+                    Last Update: <b>{{ data.last_update_date }}</b>, 
+                    Date: <b>{{ data.date }}</b>,
+                    from <b>{{ data.dates[0] }}</b> to <b>{{ data.dates[data.dates.length-1] }}</b>
+                </p>
+                <table class="table">
+                    <tr>
+                        <th>Region</th>
+                        <th>7-day avg per 100k (raw)</th>
+                        <th>New cases per 100k (raw)</th>
+                        <th>Flag</th>
+                        <th>Total cases per 100k (raw)</th>
+                        <th>Test positive rate</th>
+                        <th>Total positive tests</th>
+                        <th>Total tests</th>
+                        <th>Total deaths</th>
+                        <th>Death rate</th>
+                    </tr>
+                    <tr>
+                        <td>USA</td>
+                        <td>{{ data.usa_data.d7ps[date_idx] }} ({{ data.usa_data.d7vs[date_idx] }})</td>
+                        <td>{{ data.usa_data.dpps[date_idx] }} ({{ data.usa_data.dncs[date_idx] }})</td>
+                        <td> - </td>
+                        <td>{{ data.usa_data.npps[date_idx] }} ({{ data.usa_data.nccs[date_idx] }})</td>
+                        <td>{{ data.usa_data.tprs[date_idx] }}</td>
+                        <td>{{ data.usa_data.tpts[date_idx] }}</td>
+                        <td>{{ data.usa_data.ttrs[date_idx] }}</td>
+                        <td>{{ data.usa_data.dths[date_idx] }}</td>
+                        <td>{{ data.usa_data.dtrs[date_idx] }}</td>
+                    </tr>
+                    <tr v-for="state in data.state_data">
+                        <td>
+                            <a href="javascript:void(0);"
+                                v-on:click="show_state(state.state)">
+                                {{ state.name }}
+                            </a>
+                        </td>
+                        <td>{{ state.d7ps[date_idx] }} ({{ state.d7vs[date_idx] }})</td>
+                        <td>{{ state.dpps[date_idx] }} ({{ state.dncs[date_idx] }})</td>
+                        <td>
+                            <span v-if="state.fgcs[date_idx] == null">
+                                NA
+                            </span>
+                            <span v-else :class="'case-flag case-flag-' + state.fgcs[date_idx]">
+                            {{ state.fgcs[date_idx] }}
+                            </span>
+                        </td>
+                        <td>{{ state.npps[date_idx] }} ({{ state.nccs[date_idx] }})</td>
+                        <td>{{ state.tprs[date_idx] }}</td>
+                        <td>{{ state.tpts[date_idx] }}</td>
+                        <td>{{ state.ttrs[date_idx] }}</td>
+                        <td>{{ state.dths[date_idx] }}</td>
+                        <td>{{ state.dtrs[date_idx] }}</td>
+                    </tr>
+                </table>
+            </fieldset>
+        </div>
+        <!-- /#checker_usa_json -->
+
+        <div id="checker_state_flags">
+            <fieldset v-if="date_idx != null" style="width: 100%;">
+                <legend>State Flags</legend>
+                <div style="float: left; width: 100%;">
+                    <div style="float: left; width: 15px;" class="badge badge-default" v-for="state, abbr in data">
+                        {{ abbr }}
+                    </div>
+                </div>
+                <div v-for="state, abbr in data"
+                    style="float: left; width: 100%; border-bottom: 1px dashed #cccccc; padding: 0 0 3px 0;">
+                    <div style="float: left; min-width: 180px;">
+                        
+                        <a href="javascript:void(0);"
+                            v-on:click="show_state(abbr)">
+                            {{ state.state_data.name }}
+                        </a>
+                    </div>
+                    <div style="float: left; width: calc(100% - 190px); ">
+                        <div style="float: left; max-width: 6px; margin-top: 3px;" 
+                            v-for="county, fips in state.county_data"
+                            :class="'case-flag-s case-flag-' + county.fgcs[date_idx]">
+                            {{ county.fgcs[date_idx] }}
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+        <div id="checker_state_json" class="hide">
+            <fieldset v-if="date_idx != null">
+                <legend>
+                    <span v-on:click="hide();"><i class="fa fa-close"></i></span> | 
+                    {{ data.state }}-latest.json
+                </legend>
+                <p>
+                    Last Update: <b>{{ data.last_update_date }}</b>, 
+                    Date: <b>{{ data.date }}</b>,
+                    from <b>{{ data.dates[0] }}</b> to <b>{{ data.dates[data.dates.length-1] }}</b>
+                </p>
+                <table class="table">
+                    <tr>
+                        <th>Region</th>
+                        <th>7-day avg per 100k (raw)</th>
+                        <th>New cases per 100k (raw)</th>
+                        <th>Flag</th>
+                        <th>Total cases per 100k (raw)</th>
+                    </tr>
+                    <tr>
+                        <td>{{ data.state }}</td>
+                        <td>{{ data.state_data.d7ps[date_idx] }} ({{ data.state_data.d7vs[date_idx] }})</td>
+                        <td>{{ data.state_data.dpps[date_idx] }} ({{ data.state_data.dncs[date_idx] }})</td>
+                        <td>
+                            <span :class="'case-flag case-flag-' + data.state_data.fgcs[date_idx]">
+                                {{ data.state_data.fgcs[date_idx] }}
+                            </span>
+                        </td>
+                        <td>{{ data.state_data.npps[date_idx] }} ({{ data.state_data.nccs[date_idx] }})</td>
+                    </tr>
+                    <tr v-for="county in data.county_data">
+                        <td>{{ county.FIPS }} | {{ county.name }}</td>
+                        <td>{{ county.d7ps[date_idx] }} ({{ county.d7vs[date_idx] }})</td>
+                        <td>{{ county.dpps[date_idx] }} ({{ county.dncs[date_idx] }})</td>
+                        <td>
+                            <span v-if="county.fgcs[date_idx] == null">
+                                NA
+                            </span>
+                            <span v-else :class="'case-flag case-flag-' + county.fgcs[date_idx]">
+                            {{ county.fgcs[date_idx] }}
+                            </span>
+                        </td>
+                        <td>{{ county.npps[date_idx] }} ({{ county.nccs[date_idx] }})</td>
+                    </tr>
+                </table>
+            </fieldset>
+        </div>
+        <!-- /#checker_state_json -->
+
+        <div id="checker_state_maps">
+            <fieldset id="checker_state_maps_inner">
+                <legend>Maps</legend>
+            </fieldset>
+        </div>
+        <!-- /#checker_state_maps -->
+
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.0.4/vue.global.prod.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.3.1/d3.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.10.2/dayjs.min.js"></script>
+
+<script>
+var navi = {
+    vpp_id: "#navi",
+    vpp: null,
+
+    init: function() {
+        this.vpp = Vue.createApp({
+            data: function() {
+                return {
+                    name: 'OK',
+                    calc: 'v3',
+                    date: ''
+                }
+            },
+            methods: {
+
+            }
+        }).mount(this.vpp_id);
+
+
+        $( "#menu" ).menu();
+    },
+
+    get_calc: function() {
+        return this.vpp.$data.calc;
+    }
+};
+
+var checker_usa_json = {
+    vpp_id: '#checker_usa_json',
+    vpp: null,
+    data_file: 'US-latest.json',
+
+    load: function() {
+        this.vpp.date_idx = null;
+
+        var calc = navi.get_calc();
+        $.get(
+            jarvis.get_data_url(calc, 'US'),
+            {calc: calc, ver: Math.random()},
+            function(data) {
+                console.log(data);
+                checker_usa_json.update(data);
+            }, 'json'
+        )
+    },
+
+    init: function() {
+        // init vpp
+        this.vpp = Vue.createApp({
+            data: function(){
+                return {
+                    data: {},
+                    date_idx: null
+                };
+            },
+            methods: {
+                show_state: function(state) {
+                    checker_state_json.show_state(state);
+                }
+            }
+        }).mount(this.vpp_id);
+    },
+
+    show: function() {
+        $(this.vpp_id).removeClass('hide');
+    },
+
+    hide: function() {
+        $(this.vpp_id).addClass('hide');
+    },
+
+    update: function(data) {
+        console.log(data);
+        this.vpp.$data.data = data;
+        this.vpp.date_idx = data.dates.length - 1;
+        this.vpp.$forceUpdate();
+    }
+};
+
+var checker_state_flags = {
+    vpp_id: '#checker_state_flags',
+    vpp: null,
+
+    init: function() {
+        // init vpp
+        this.vpp = Vue.createApp({
+            data: function(){
+                return {
+                    data: {},
+                    date_idx: null
+                };
+            },
+            methods: {
+                show_state: function(state) {
+                    checker_state_json.show_state(state);
+                }
+            }
+        }).mount(this.vpp_id);
+    },
+
+    load: function(state) {
+        var calc = navi.get_calc();
+        $.get(
+            jarvis.get_data_url(calc, state),
+            { calc: calc, ver: Math.random() },
+            function(data) {
+                checker_state_flags.add(data);
+            }, 'json'
+        )
+    },
+
+    add: function(data) {
+        this.vpp.$data.data[data.state] = data;
+        this.vpp.$data.date_idx = data.dates.length - 1;
+        this.vpp.$forceUpdate();
+    }
+};
+
+var checker_state_json = {
+    vpp_id: '#checker_state_json',
+    vpp: null,
+
+    load: function(state) {
+        var calc = navi.get_calc();
+        $.get(
+            jarvis.get_data_url(calc, state),
+            {calc: calc, ver: Math.random()},
+            function(data) {
+                checker_state_json.update(data);
+            }, 'json'
+        );
+    },
+
+    init: function() {
+        // init vpp
+        this.vpp = Vue.createApp({
+            data: function(){
+                return {
+                    data: {},
+                    date_idx: null
+                };
+            },
+            methods: {
+                hide: function() {
+                    checker_state_json.hide();
+                }
+            }
+        }).mount(this.vpp_id);
+    },
+
+    update: function(data) {
+        this.vpp.$data.data = data;
+        this.vpp.$data.date_idx = data.dates.length - 1;
+        this.vpp.$forceUpdate();
+    },
+
+    show_state: function(state) {
+        var calc = navi.get_calc();
+        $.get(
+            './mapdata/' + state + '-latest.json',
+            { calc: calc, ver: Math.random() },
+            function(data) {
+                checker_state_json.update(data);
+                checker_state_json.show();
+            }, 'json'
+        )
+    },
+
+    show: function() {
+        $(this.vpp_id).removeClass('hide');
+    },
+
+    hide: function() {
+        $(this.vpp_id).addClass('hide');
+    }
+};
+
+var figmker_stmap = {
+
+    load_and_make: function(state) {
+        var calc = navi.get_calc();
+        $.get(
+            jarvis.get_data_url(calc, state),
+            { calc: calc, ver: Math.random() },
+            function(data) {
+                var fig_id = 'fig_stmap_' + data.state;
+                var fig = figmker_stmap.make(data);
+                jarvis.figs[fig_id] = fig;
+
+            }, 'json'
+        )
+    },
+
+    make: function(data) {
+        // create the fig DOM
+        $('#checker_state_maps' + '_inner').append(
+            '<div class="fig-stmap-box">' +
+            '<p><b>' + data.state_data.name + '</b> | for <span>' + data.date + '</span></p>' + 
+            '<div id="fig_stmap_'+data.state+'" class="fig-stmap"></div>' +
+            '</div>'
+        );
+
+        // create the fig obj
+        var fig = {
+            plot_id: 'fig_stmap_' + data.state,
+            data: data,
+            colorscale: {
+                d7ps: {
+                    name: '7 Day Avg Cases per 100k',
+                    min: 0,
+                    mid: 50,
+                    max: 100,
+                    schema: [
+                        [0, '#f5a800'],
+                        [0.5, '#ab0020'],
+                        [1, '#330206']
+                    ]
+                }
+            },
+
+            center_zoom: {
+                AL: [32.83094098386724, -86.72798630623657, 5.555648752272612, 6.505648752272609],
+                AK: [63.44693850362876, -152.35437607298434, 5.7821258120506602, 5.582125812050661],
+                AZ: [34.22032129272864, -111.79519254393165, 5.151412188068152, 6.151412188068149],
+                AR: [34.74154293076825, -92.27158518339274, 5.3909149325614415, 6.890914932561438],
+                CA: [37.45075663829661, -119.15385736551389, 4.203726247727388, 5.503726247727385],
+                CO: [39.031159219718006, -105.50860962020852, 4.851412188068152, 6.551412188068148],
+                CT: [41.55715657621522, -72.7299787240895, 6.636700474857865, 8.299999999999999],
+                DE: [39.15099498387974, -75.36087912973886, 7.063404857504172, 7.96340485750417],
+                DC: [38.896758078722826, -77.02494504184142, 9.863382259558914, 10.699999999999996],
+                FL: [27.887125200731163, -83.79563908145951, 4.788425024767943, 6.08842502476794],
+                GA: [32.80136845685382, -83.17089284876477, 5.194073777040557, 6.494073777040554],
+                HI: [20.60743963352357, -157.54104533361146, 5.280893574706169, 6.6808935747061655],
+                ID: [45.61980167243152, -114.16598280970521, 4.736549065241494, 5.636549065241491],
+                IL: [39.81074645701159, -88.99580463570834, 5.24346021698839, 6.1434602169883865],
+                IN: [39.799696826456255, -86.22002516386937, 5.397696781192849, 6.5976967811928455],
+                IA: [42.10491391119382, -93.41377777792462, 5.211168201429747, 6.8111682014297426],
+                KS: [38.440684985214176, -98.28074220678246, 4.808343825293441, 6.408343825293437],
+                KY: [37.564568416051415, -85.6694500400194, 5.259756013361598, 6.559756013361594],
+                LA: [30.99086613113124, -91.43518683060825, 5.380138585345384, 6.6801385853453805],
+                ME: [45.289657532234486, -68.9674969445648, 5.229988796751516, 6.329988796751513],
+                MD: [38.81535418520116, -77.12180346403989, 6.003973887409244, 7.203973887409241],
+                MA: [42.08303690793116, -71.71280982798328, 6.0390902791042025, 7.439090279104199],
+                MI: [44.5801516216078, -86.36481608559717, 4.799287957423174, 5.899287957423171],
+                MN: [46.38085826405498, -93.6717735092464, 4.8000000000000005, 5.799999999999998],
+                MS: [32.67036218623886, -89.64788757469944, 5.536594679723923, 6.43659467972392],
+                MO: [38.38745607075799, -92.45400615072117, 5.202740687503251, 6.302740687503248],
+                MT: [46.69748337383348, -109.89449604217452, 4.194267559094335, 5.694267559094331],
+                NE: [41.35954643228564, -99.749047264115, 4.882358115519469, 6.182358115519465],
+                NV: [38.61884501147105, -116.78201005530627, 4.896457889700124, 5.696457889700121],
+                NH: [44.01014312907287, -71.52454991154269, 6.222515228018716, 7.0225152280187135],
+                NJ: [40.14494695293476, -74.56351899912465, 6.266427775437659, 7.366427775437656],
+                NM: [34.200386344213044, -106.07109251748108, 5.10199102508721, 6.101991025087207],
+                NY: [42.93475020043314, -75.85682602572393, 4.851412188068152, 6.151412188068149],
+                NC: [35.212586257912264, -79.89760235349581, 4.878911947457379, 6.178911947457375],
+                ND: [47.45124418753352, -100.37322141588692, 4.833557666103269, 6.333557666103265],
+                OH: [40.244096346922646, -82.58889854466332, 5.37060940340765, 6.657060940340762],
+                OK: [35.36240917258573, -98.67768864171694, 4.4393485316272955, 6.239348531627291],
+                OR: [44.14153619035105, -120.49700768838579, 4.640168187669632, 6.240168187669628],
+                PA: [40.93561623669444, -77.63858939515887, 5.003288622967021, 6.9032886229670165],
+                RI: [41.644399559477705, -71.49968794595952, 8.093127369668101, 8.993127369668098],
+                SC: [33.57961112709421, -80.89443809845852, 5.878145529643364, 6.97814552964336],
+                SD: [44.21476029518314, -100.23875902228633, 5.184352210170486, 6.384352210170482],
+                TN: [35.83840909453255, -85.97782123718252, 5.064853245762301, 6.464853245762296],
+                TX: [31.38153766444762, -100.08651780956296, 4.440010149181202, 5.340010149181198],
+                UT: [39.57383395300832, -111.44344606283937, 5.402824376136306, 6.202824376136303],
+                VT: [43.88191442670171, -72.52570703386135, 6.430489799445501, 7.330489799445497],
+                VA: [37.48779928349346, -79.42283700816557, 5.092093635377879, 6.492093635377874],
+                WA: [47.39956277899745, -120.79115434451177, 5.500000000000008, 6.300000000000005],
+                WV: [38.9752685512272, -80.17909479124876, 5.880624334739462, 6.780624334739459],
+                WI: [44.75598451280965, -89.84999463098484, 5.402824376136305, 6.302824376136302],
+                WY: [43.00465749846177, -107.54231152504644, 5.001412188068152, 6.251412188068149],
+
+                // for the USA map
+                US: [41.341570863844055, -112.28385033630519, 1.33, 3.0333333333333408],
+
+                // for the territories
+                AS: [-14.287319715841264, -170.6875293445853, 8.900000000000004, 9.900000000000004],
+                GU: [13.4352408224931, 144.79330364803013, 8.999999999999982, 9.999999999999982],
+                MP: [15.101249677795451, 145.7078289288088, 8.799999999999983, 9.799999999999983],
+                PR: [18.19379353240403, -66.41591225952243, 6.69999999999989, 7.89999999999999],
+                VI: [18.03447726727822, -64.79825504504345, 8.099999999999985, 9.099999999999985]
+            },
+
+            // the plot current
+            current: {
+                date: data.date,
+                state: data.state,
+                attr: 'd7ps'
+            },
+
+            plot_config: {
+                responsive: true,
+                displayModeBar: true,
+                scrollZoom: true
+            },
+
+            fmt_comma: d3.format(","),
+
+            unpack: function(rows, key) {
+                return rows.map(function(row) {
+                    return row[key];
+                });
+            },
+
+            _create_mydata: function() {
+                var date = this.current.date;
+                var date_idx = this.data.dates.indexOf(date);
+                var rows = this.data.county_data;
+                var mydata = [];
+
+                for (var fips in rows) {
+                    var obj = rows[fips];
+                    var pop = obj.pop;
+                    var ncc = obj.nccs[date_idx];
+                    var dnc = obj.dncs[date_idx];
+                    var d7v = obj.d7vs[date_idx];
+                    var npp = obj.npps[date_idx];
+                    var dpp = obj.dpps[date_idx];
+                    var d7p = obj.d7ps[date_idx];
+
+                    // decide show which value as default
+                    var val = obj[this.current.attr][date_idx];
+                    
+                    // create an obj for this FIPS
+                    var r = {
+                        fips: fips,
+                        val: val,
+                        txt: obj.name + ', ' + obj.state + '<br>' +
+                            ' (' + fips + ', Population: '+this.fmt_comma(pop)+')<br>'+
+                            'For ' + date + ' <br>' +
+                            'New Cases: <b>' + this.fmt_comma(dnc) + ' </b><br>' + 
+                            '7-day Avg Cases: <b>' + this.fmt_comma(d7v) + ' </b><br>' + 
+                            'Total Cases: <b>' + this.fmt_comma(ncc) + ' </b><br>' + 
+                            ''
+                    };
+                    mydata.push(r);
+                }
+
+                return mydata;
+            },
+
+            _create_plot_data: function() {
+                // create the data list
+                var mydata = this._create_mydata();
+
+                // generate the plot_data for plotly
+                this.plot_data = [];
+
+                this.plot_data.push({
+                    name: '',
+                    type: 'choropleth',
+                    // locationmode: 'USA-states',
+                    locations: this.unpack(mydata, 'fips'),
+
+                    locationmode: "geojson-id",
+                    geojson: jarvis.get_geojson_url(this.current.state),
+
+                    text: this.unpack(mydata, 'txt'),
+                    z: this.unpack(mydata, 'val'),
+
+                    hovertemplate: '%{text}',
+
+                    zmin: this.colorscale[this.current.attr].min,
+                    zmax: this.colorscale[this.current.attr].max,
+
+                    colorscale: this.colorscale[this.current.attr].schema,
+
+                    hoverlabel: {
+                        bgcolor: '#000000',
+                        font: {
+                            size: 12,
+                            color: '#ffffff'
+                        },
+                        align: 'left'
+                    },
+
+                    showlegend: false,
+                    showscale: false,
+
+                    marker: {
+                        line: {
+                            color: "#333333",
+                            width: 1,
+                        },
+                    },
+                });
+            },
+
+            _create_plot_layout: function() {
+                var state_loc = this.center_zoom[this.current.state];
+                var lat = state_loc[0];
+                var lon = state_loc[1];
+                var zoom = state_loc[3];
+
+                this.plot_layout = {
+                    margin: { t: 0 , b: 0, l: 0, r: 0},
+                    geo: {
+                        scope: 'world',
+                        projection: {
+                            type: 'mercator'
+                        },
+                        center: {
+                            lat: lat,
+                            lon: lon,
+                        },
+                        fitbounds: 'locations',
+                        zoom: zoom,
+                        showframe: false,
+                        showlakes: false
+                    }
+                };
+            },
+
+            init: function() {
+                // create data and layout for this plot
+                this._create_plot_data();
+                this._create_plot_layout();
+
+                // clear
+                Plotly.purge(this.plot_id);
+
+                // init new!
+                Plotly.newPlot(
+                    this.plot_id,
+                    this.plot_data,
+                    this.plot_layout,
+                    this.plot_config
+                );
+            }
+        };
+
+        // bind plot_data
+        fig.plot_data = fig.init();
+
+        return fig;
+    }
+};
+
+var jarvis = {
+    states: ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY", "AS", "GU", "MP", "PR", "VI"],
+    figs: {},
+
+    get_data_url: function(calc, state) {
+        // return 'https://kcmscovidtracker.blob.core.windows.net/json/state_'+calc+'_test/'+state+'-latest.json';
+        return '/mapdata/state_' + calc + '/' + state + '-latest.json';
+    },
+
+    get_geojson_url: function(state) {
+        return "./static/data/map/us-"+state+".json";
+        // if (state == 'US') {
+        //     state = 'states';
+        // }
+        // return 'https://kcmscovidtracker.blob.core.windows.net/json/map/us-'+state+'.json';
+    },
+
+    init: function() {
+        navi.init();
+
+        checker_usa_json.init();
+        checker_state_flags.init();
+        checker_state_json.init();
+    },
+
+    load_all_states: function() {
+    
+        // load all states
+        for (let i = 0; i < this.states.length; i++) {
+            var state = this.states[i];
+            // load the state
+            checker_state_flags.load(state);
+            // load the map
+            figmker_stmap.load_and_make(state);
+        }
+
+    },
+
+    upload_azure: function() {
+        alert('Under development.');
+    },
+
+    download_raw_data: function(ds) {
+        alert('Under development ' + ds);
+    }
+}
+
+$(document).ready(function() {
+    jarvis.init();
+});
+</script>
+</body>
+</html>

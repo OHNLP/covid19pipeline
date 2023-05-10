@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+<!-- Required meta tags -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<link rel="icon" href="./static/img/favicon.ico">
+<title>MC HRR COVID-19 CrRW Status Dashboard</title>
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" crossorigin="anonymous">
+<script src="https://kit.fontawesome.com/cb45cc91b0.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.css" />
+<style>
+html, body {
+    overflow: hidden;
+    font-size: 12px;
+}
+p {
+    margin-bottom: .5rem;
+}
+.box-header-nav {
+    padding: 0 0 0 15px;
+}
+/* a start screen for IE and hiding init */
+#start-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+#ss-msg {
+    width: 100%;
+    padding: 10px 0;
+    text-align: center;
+}
+.wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.d3-tip {
+    line-height: 1;
+    padding: 6px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    border-radius: 4px;
+    font-size: 12px;
+}
+/* for the gauge */
+.mchrr-gauge {
+    padding: 10px;
+    max-width: 150px;
+}
+.mchrr-cdts {
+    font-size: 1.1em;
+    padding: 4px 0 0 0;
+}
+.mchrr-dncs {
+    font-size: 1.3em;
+}
+.mchrr-nccs {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+.mchrr-dths {
+    font-size: 1.1em;
+    color: red;
+}
+.mchrr-crcs {
+    font-size: 1em;
+    padding: 2px 5px;
+    border-radius: 5px;
+}
+.mchrr-crcs-GYR { color: white; background: linear-gradient(90deg, rgba(255,33,5,1) 0%, rgba(247,221,32,1) 48%, rgba(18,191,22,1) 100%); }
+.mchrr-crcs-G { color: white; background: green; }
+.mchrr-crcs-Y { color: white; background: gold; }
+.mchrr-crcs-R { color: white; background: red; }
+/* for the calendar chart */
+.fig-crrw-calendar {
+    width: 100%;
+    height: 95px;
+}
+.fig-crrw-calendar .crrw-day-label {
+    display: inline-block;
+    width: 80px;
+    margin: 0 5px 1px 0 ;
+    font-size: 10px;
+}
+.fig-crrw-calendar .crrw-day-chart {
+    width: calc(100% - 80px);
+    height: 95px;
+}
+/* for the 1-d calendar chart */
+.fig-crrw-1dcal {
+    height: 12px;
+    width: 100%;
+    padding: 0 0 0 5px;
+}
+.fig-crrw-1dcal:hover {
+    background: whitesmoke;
+}
+.fig-crrw-1dcal .crrw-day-label {
+    display: inline-block;
+    width: 80px;
+    height: 12px;
+    margin: 0 5px 1px 0 ;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 10px;
+    line-height: 12px;
+}
+.fig-crrw-1dcal .crrw-day {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin: 0 1px 1px 0 ;
+}
+/* for the trend chart */
+.fig-crrw-trend {
+    width: 100%;
+    height: 165px;
+    margin: 0 0 3px 0;
+    background: white;
+}
+.crrw-trend-info {
+    display: inline-block;
+    width: 80px;
+    padding: 0 0 0 5px;
+}
+.crrw-trend-bar {
+    display: block;
+    width: 100%;
+    padding: 2px 0;
+}
+.crrw-trend-label {
+    display: inline-block;
+    width: 100%;
+}
+.crrw-trend-label:hover {
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+    background: whitesmoke;
+}
+.crrw-trend-label:active {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+    background: whitesmoke;
+}
+.crrw-trend-chart {
+    width: 100%;
+    min-width: 600px;
+    height: 150px;
+}
+.crrw-day-R {
+    background: red;
+}
+.crrw-day-G {
+    background: green;
+}
+.crrw-day-Y {
+    background: gold;
+}
+.crrw-day-badge {
+    padding: 1px 5px;
+    border-radius: 5px;
+}
+#header {
+    background: whitesmoke;
+}
+#header a {
+    color: #555555;
+}
+.modal-dialog {
+    max-width: 700px !important;
+}
+</style>
+</head>
+
+<body>
+
+    
+<div id="start-screen">
+    <h1>
+        <i class="fa fa-globe-americas"></i>
+        MC HRR COVID-19 CrRW Status Dashboard
+    </h1>
+    <div id="ss-msg">Loading data and initializing plots ...</div>
+</div>
+
+<div class="container-fluid wrapper">
+    <div id="header" class="row mb-3">
+        <div class="col">
+            <div class="mt-2 mb-2">
+                <i class="fa fa-globe-americas"></i> MC HRR COVID-19 CrRW Status Dashboard |
+                <a href="/"><i class="fa fa-home"></i> Home</a> |
+                <a target="_blank" href="/mchrr_dashboard.html"><i class="fa fa-tachometer-alt"></i> MC HRR Case Rate Trends</a> |
+                <a target="_blank" href="/world_dashboard.html"><i class="fa fa-globe-americas"></i> World Case Rate Trends</a> | 
+                <a target="_blank" href="/dsvm_dashboard.html"><i class="fa fa-hourglass-half"></i> MC HRR Case Doubling Time Trends</a> |
+                
+                <a href="javascript:void(0);" onclick="jarvis.modal('About CrRW and how to use this website',$('#about-text').html());">About</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="vw_gauge_tile">
+
+        <h5>
+            <i class="fa fa-viruses"></i>
+            MC HRR Total Cases | Last update: {{ date }}
+        </h5>
+    
+        <div class="row">
+            <div class="col d-flex flex-row">
+                <div class="mchrr-gauge">
+                    <h5>&nbsp;</h5>
+                    <div class="mchrr-crcs mchrr-crcs-GYR">Cr7d100k | RW:</div>
+                    <div class="mchrr-cdts">CDT:</div>
+                    <div class="mchrr-nccs">Total cases:</div>
+                    <div class="mchrr-dncs">New cases:</div>
+                    <div class="mchrr-dths">Total deaths:</div>
+                </div>
+                <div class="mchrr-gauge"
+                    v-for="mchrr in mchrr_list">
+                    <h5>{{ mchrr.name }}</h5>
+                    <div class="mchrr-crcs"
+                        v-bind:class="'mchrr-crcs-' + get_latest(mchrr.code, 'crcs')">
+                        {{ get_latest(mchrr.code, 'crps').toFixed(2) }} | {{ get_latest(mchrr.code, 'crts').toFixed(2) }}
+                    </div>
+                    <div class="mchrr-cdts">
+                        {{ get_latest(mchrr.code, 'cdts').toFixed(0) }} days
+                    </div>
+                    <div class="mchrr-nccs"
+                        v-bind:class="'mchrr-nccs-' + mchrr.code">
+                        {{ fmt_comma(get_latest(mchrr.code, 'nccs')) }}
+                    </div>
+                    <div class="mchrr-dncs"
+                        v-bind:class="'mchrr-dncs-' + mchrr.code">
+                        +{{ fmt_comma(get_latest(mchrr.code, 'dncs')) }}
+                    </div>
+                    <div class="mchrr-dths"
+                        v-bind:class="'mchrr-dths-' + mchrr.code">
+                        {{ fmt_comma(get_latest(mchrr.code, 'dths')) }}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <!-- /#vw_gauge_tile -->
+
+    <hr>
+
+    <div id="vw_mchrr_trends">
+
+        <h5>
+            <i class="fa fa-line-chart"></i>
+            MC HRR CrRW Trend | Last update: {{ date }}
+        </h5>
+
+        <div id="fig_crrw_trends">
+
+        </div>
+    </div>
+
+
+    <!-- Toast -->
+    <div id="toast" class="toast" style="position: absolute; top: 10px; right: 10px;">
+        <div class="toast-header">
+            <svg class="bd-placeholder-img rounded mr-2" width="15" height="15" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img"><rect id="toast_rect" width="100%" height="100%" fill="#007aff"></rect></svg>
+            <strong class="mr-auto">Bootstrap</strong>
+            <small>&nbsp;</small>
+            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div id="toast_body" class="toast-body">
+            &nbsp;
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="modal-title">Modal title</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div id="modal-body" class="modal-body">
+            
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <div id="about-text" style="display: none;">
+        <h5>CrRW: Cr7d100k and RW_Cr7d100k</h5>
+        <p>CrRW is a novel method to measure the trends in COVID-19 or other infectious diseases, which includes two indicators: </p>
+        <p>1. Cr7d100k: 7-day smoothed average daily case rate per 100k capita;</p>
+        <p>2. RW_Cr7d100k: the ratio of this week’s Cr7d100k comparing to the week before.</p>
+        <p>By using these two indicators in combination, we can depict the current status of the epidemic as well as recent trends with following thresholds:</p>
+        <p>1. If Cr7d100k < 15 and RW_Cr7d100k < 1 for the past seven days, it would be on the relative safe (i.e., the <b class="badge badge-success">GREEN</b> status)</p>
+        <p>2. If Cr7d100k > 30 or RW_Cr7d100k > 1 for the past seven days, the current pandemic situation is bad or the trend is bad, it’s <b class="badge badge-danger">RED</b> status.</p>
+        <p>3. Everything else is <b class="badge badge-warning">ORANGE</b> status as we cannot say much – it can go either way.</p>
+        <hr>
+    </div>
+</div>
+
+<script>
+var isIE = /*@cc_on!@*/false || !!document.documentMode;
+if (isIE) {
+    document.getElementById('ss-msg').innerHTML = 'The visualization used in this website require advanced web technologies, which are <b>NOT</b> supported by Internet Explorer.<br>Try using Google Chrome, Apple Safari, Mozilla Firefox or other modern browsers to access:<br><span style="font-size:1.2em;">' + location.href + '</span>';
+}
+</script>
+<!-- JavaScript packages -->
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@4.5.0/dist/echarts.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.12/vue.min.js"></script>
+
+<script>
+
+{% include 'js/crrw/figmker_crrw_trend_ymax120.js' %}
+
+
+var vw_gauge_tile = {
+    vpp_id: '#vw_gauge_tile',
+    vpp: null,
+
+    init: function(data) {
+        this.data = data;
+
+        this.vpp = new Vue({
+            el: this.vpp_id,
+            data: {
+                date: data.date,
+                dates: data.dates,
+                mchrr_list: [
+                    { code: 'AVG', name: 'ALL' },
+                    { code: 'PHX', name: 'PHX' },
+                    { code: 'JAX', name: 'JAX' },
+                    { code: 'RST', name: 'RST/SEMN' },
+                    { code: 'NWWI', name: 'NWWI' },
+                    { code: 'SWMN', name: 'SWMN' },
+                    { code: 'SWWI', name: 'SWWI' }
+                ],
+                mchrr_dict: data.mchrr_data
+            },
+            methods: {
+                get_latest: function(mchrr_code, attr) {
+                    var date_idx = this.dates.indexOf(this.date);
+                    return this.mchrr_dict[mchrr_code][attr][date_idx];
+                },
+                fmt_comma: function(v) {
+                    return jarvis.fmt_comma(v);
+                }
+            }
+        });
+    }
+};
+
+var vw_mchrr_trends = {
+    vpp_id: '#vw_mchrr_trends',
+    vpp: null,
+
+    init: function(data) {
+        this.data = data;
+
+        this.vpp = new Vue({
+            el: this.vpp_id,
+            data: {
+                data: data,
+                date: data.date,
+                dates: data.dates,
+                mchrr_list: [
+                    { code: 'AVG', name: 'ALL' },
+                    { code: 'PHX', name: 'PHX' },
+                    { code: 'JAX', name: 'JAX' },
+                    { code: 'RST', name: 'RST/SEMN' },
+                    { code: 'NWWI', name: 'NWWI' },
+                    { code: 'SWMN', name: 'SWMN' },
+                    { code: 'SWWI', name: 'SWWI' }
+                ],
+                mchrr_dict: data.mc_data
+            },
+            methods: {
+
+            },
+            mounted: function() {
+                // draw the charts
+                for (var i = 0; i < this.mchrr_list.length; i++) {
+                    var mchrr = this.mchrr_list[i];
+                    var plot_id = 'fig_crrw_trend_' + mchrr.code;
+                    var fig = figmker_crrw_trend.make_fig(plot_id, this.data, mchrr.code, 'mchrr');
+                }
+            }
+        });
+    }
+};
+
+var jarvis = {
+    plots: {},
+    data: {},
+    state_data: {},
+    base_data_url: '/covid_data/v2/',
+    fmt_comma: d3.format(','),
+
+    init: function() {
+        // init the toast
+        $('.toast').toast({
+            delay: 10000
+        });
+
+        // sortable
+        $('#fig_crrw_trends').sortable({
+            handle: '.crrw-trend-label',
+            placeholder: "ui-state-highlight"
+        });
+        $('#fig_crrw_trends').disableSelection();
+
+        $.get(
+            this.base_data_url + 'MCHRR-history.json',
+            { ver: Math.random() },
+            function(data) {
+                jarvis.data = data;
+
+                // init the gauge list
+                vw_gauge_tile.init(data);
+                vw_mchrr_trends.init(data);
+
+                jarvis.ssmsg('Finished initialization.')
+                setTimeout('jarvis.ssclose();', 500);
+            }, 'json'
+        );
+
+        jarvis.ssmsg('Finished initialization.')
+        setTimeout('jarvis.ssclose();', 500);
+    },
+
+    ssmsg: function(msg) {
+        $('#ss-msg').html(msg);
+    },
+
+    ssclose: function() {
+        $('#start-screen').hide();
+    },
+
+    msg: function(s, color) {
+        if (typeof(color)=='undefined') {
+            color = 'blue';
+        }
+        $('#toast_rect').attr('fill', color);
+        $('#toast_body').html(s);
+        $('#toast').toast('show')
+    },
+
+    modal: function(ti, ct) {
+        $('#modal-title').html(ti);
+        $('#modal-body').html(ct);
+        $('#modal').modal('show');
+    }
+};
+
+$(document).ready(function(){
+    jarvis.init();
+})
+</script>
+</body>
+</html>
